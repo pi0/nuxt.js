@@ -1,0 +1,7 @@
+pipeline:
+  test:
+    image: node
+    commands:
+      - ls
+      - yarn install
+      - yarn test
