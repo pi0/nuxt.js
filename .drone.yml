@@ -7,4 +7,3 @@ pipeline:
       - ls
       - yarn install
       - yarn test
-
