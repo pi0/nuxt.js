@@ -6,11 +6,11 @@ export default async function entrypoint(_argv) {
   // Read from process.argv
   const argv = _argv ? Array.from(_argv) : process.argv.slice(2)
 
-  // Args are in form of <worker> <rootDir> <options>
-  if (argv.length !== 2) {
-    throw String(`Invalid number of args. Expected <worker> <rootDir> <options> (3) but got (${argv.length}) arguments.`)
+  // Args are in form of <worker> <rootDir> [options]
+  if (argv.length !== 2 && argv.length !== 3) {
+    throw String(`Invalid number of arguments. Usage: <worker> <rootDir> [options]`)
   }
-  const [workerName, rootDir, optionsStr] = argv
+  const [workerName, rootDir, optionsStr = 'nuxt.config'] = argv
 
   // Try to get worker
   // eslint-disable-next-line import/namespace
