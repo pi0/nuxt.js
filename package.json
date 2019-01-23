@@ -15,6 +15,7 @@
     "lint": "eslint --ext .js,.mjs,.vue .",
     "lint:app": "eslint-multiplexer eslint --ignore-path packages/vue-app/template/.eslintignore 'test/fixtures/!(missing-plugin)/.nuxt!(-dev)/**' | eslint-multiplexer -b",
     "nuxt": "node -r esm ./packages/cli/bin/nuxt-cli.js",
+    "nuxt-worker": "node -r esm ./packages/worker/bin/nuxt-worker.js",
     "test": "yarn test:fixtures && yarn test:unit && yarn test:types",
     "test:fixtures": "jest test/fixtures --forceExit",
     "test:e2e": "jest -i test/e2e --forceExit",
@@ -57,7 +58,7 @@
     "jest-junit": "^6.0.1",
     "jsdom": "^13.1.0",
     "klaw-sync": "^6.0.0",
-    "lerna": "^3.10.6",
+    "lerna": "3.10.6",
     "lodash": "^4.17.11",
     "node-fetch": "^2.3.0",
     "pug": "^2.0.3",
@@ -85,5 +86,6 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/nuxt/nuxt.js.git"
-  }
+  },
+  "name": "nuxt.js"
 }

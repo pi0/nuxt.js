@@ -1,0 +1,20 @@
+{
+  "name": "@nuxt/worker",
+  "version": "2.3.4",
+  "repository": "nuxt/nuxt.js",
+  "license": "MIT",
+  "files": [
+    "bin",
+    "dist"
+  ],
+  "main": "dist/worker.js",
+  "bin": {
+    "nuxt-worker": "bin/nuxt-worker.js"
+  },
+  "dependencies": {
+    "esm": "^3.1.1"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
