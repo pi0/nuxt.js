@@ -3,6 +3,7 @@ import * as workers from './workers'
 import { parseOptions } from './options'
 import { log } from './utils/log'
 import { hrToMs } from './utils/time'
+import assignDeep from './utils/assign-deep'
 
 export async function entrypoint(_argv) {
   // Process title
@@ -16,11 +17,11 @@ export async function entrypoint(_argv) {
   // Read from process.argv
   const argv = _argv ? Array.from(_argv) : process.argv.slice(2)
 
-  // Args are in form of <worker> <rootDir> [options]
-  if (argv.length !== 2 && argv.length !== 3) {
-    throw String(`Invalid number of arguments. Usage: <worker> <rootDir> [options]`)
+  // Args are in form of <worker> <rootDir> [overwrite]...
+  if (argv.length < 2) {
+    throw String(`Invalid number of arguments. Usage: <worker> <rootDir> [overwrite]...`)
   }
-  const [workerName, rootDir, optionsStr = 'nuxt.config'] = argv
+  const [workerName, rootDir, ...overwrite] = argv
 
   // Try to get worker
   // eslint-disable-next-line import/namespace
@@ -42,7 +43,10 @@ export async function entrypoint(_argv) {
   log('Working directory: ' + process.cwd())
 
   // Options
-  const options = parseOptions(optionsStr)
+  const options = parseOptions('nuxt.config')
+  if (overwrite) {
+    assignDeep(options, ...overwrite.map(parseOptions))
+  }
 
   // Invoke worker
   await worker(options)
