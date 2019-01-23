@@ -4,7 +4,7 @@ import { parseOptions } from './options'
 import { log } from './utils/log'
 import { hrToMs } from './utils/time'
 
-export default async function entrypoint(_argv) {
+export async function entrypoint(_argv) {
   // Process title
   process.title = `nuxt-worker-${process.pid}`
 
