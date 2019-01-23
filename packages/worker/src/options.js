@@ -1,4 +1,5 @@
 import { resolve, relative } from 'path'
+import { log } from './utils/log'
 
 export function parseOptions(str = '') {
   let opts = {}
@@ -14,7 +15,7 @@ export function parseOptions(str = '') {
     // Try to resolve
     const optsPath = tryResolve(str)
     if (optsPath) {
-      console.log('Loading config from: ' + relativeToCWD(optsPath))
+      log('Loading config from: ' + relativeToCWD(optsPath))
       opts = require('esm')(module)(optsPath)
       opts = opts.default || opts || {}
     }

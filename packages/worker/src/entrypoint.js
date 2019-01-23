@@ -1,8 +1,18 @@
 import { lstatSync } from 'fs'
 import * as workers from './workers'
 import { parseOptions } from './options'
+import { log } from './utils/log'
+import { hrToMs } from './utils/time'
 
 export default async function entrypoint(_argv) {
+  // Process title
+  process.title = `nuxt-worker-${process.pid}`
+
+  // Process start time
+  if (!process.startTime) {
+    process.startTime = process.hrtime()
+  }
+
   // Read from process.argv
   const argv = _argv ? Array.from(_argv) : process.argv.slice(2)
 
@@ -19,10 +29,8 @@ export default async function entrypoint(_argv) {
     throw String('Unknown worker: ' + workerName)
   }
 
-  // Measure start time
-  console.log(`Starting worker: ${workerName}`)
-  const startedInMsg = `${workerName} worker started in`
-  console.time(startedInMsg)
+  // Update process title
+  process.title += '-' + workerName
 
   // Validate rootDir to be a directory
   if (!lstatSync(rootDir).isDirectory()) {
@@ -31,7 +39,7 @@ export default async function entrypoint(_argv) {
 
   // Chdir into rootDir
   process.chdir(rootDir)
-  console.log('Working directory: ' + process.cwd())
+  log('Working directory: ' + process.cwd())
 
   // Options
   const options = parseOptions(optionsStr)
@@ -40,5 +48,6 @@ export default async function entrypoint(_argv) {
   await worker(options)
 
   // Show ready + time
-  console.timeEnd(startedInMsg)
+  const time = hrToMs(process.hrtime(process.startTime))
+  log(`Initialized in: ${time}ms`)
 }
