@@ -2,9 +2,11 @@ import { resolve, relative } from 'path'
 import { log } from './utils/log'
 
 export function parseOptions(str = '') {
-  let opts = {}
+  let opts
 
-  if (str[0] === '{') {
+  if (str !== null && typeof str === 'object') {
+    opts = { ...str }
+  } else if (str[0] === '{') {
     // Try parse as JSON
     try {
       opts = JSON.parse(str)

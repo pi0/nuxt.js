@@ -1,19 +1,16 @@
 import cluster from 'cluster'
-import { cpus } from 'os'
 import { log } from './utils/log'
 import { entrypoint } from './entrypoint'
 
 // eslint-disable-next-line require-await
-export async function startCluster(num = cpus().length) {
+export async function forkWorker(num = 1, ...args) {
   if (!cluster.isMaster) {
     // --- Worker ---
     log(`Worker ${process.pid} started`)
-    return entrypoint()
+    return entrypoint(args.length && args)
   }
 
   // --- Master ---
-  log(`Master ${process.pid} is running`)
-
   // Fork workers.
   for (let i = 0; i < num; i++) {
     cluster.fork()
