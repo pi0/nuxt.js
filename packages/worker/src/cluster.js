@@ -3,11 +3,11 @@ import { log } from './utils/log'
 import { entrypoint } from './entrypoint'
 
 // eslint-disable-next-line require-await
-export async function forkWorker(num = 1, ...args) {
+export async function forkWorker(options, num = 1) {
   if (!cluster.isMaster) {
     // --- Worker ---
     log(`Worker ${process.pid} started`)
-    return entrypoint(args.length && args)
+    return entrypoint(options)
   }
 
   // --- Master ---
