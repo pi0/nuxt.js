@@ -1,39 +1,27 @@
-import { resolve, relative } from 'path'
 import { log } from './utils/log'
+import { importESM } from './utils/esm'
+import { tryResolve, relativeToCWD } from './utils/fs'
 
-export function parseOptions(str = '') {
-  let opts
+export function parseOptions(arg) {
+  let opts = {}
 
-  if (str !== null && typeof str === 'object') {
-    opts = { ...str }
-  } else if (str[0] === '{') {
-    // Try parse as JSON
+  if (arg !== null && typeof arg === 'object') {
+    opts = { ...arg }
+  } else if (arg[0] === '{') {
+    // Try to parse as JSON
     try {
-      opts = JSON.parse(str)
+      opts = JSON.parse(arg)
     } catch (error) {
-      throw String('Error parsing options JSON: ' + error)
+      throw new Error('Error parsing options JSON: ' + error)
     }
   } else {
     // Try to resolve
-    const optsPath = tryResolve(str)
+    const optsPath = tryResolve(arg)
     if (optsPath) {
       log('Loading config from: ' + relativeToCWD(optsPath))
-      opts = require('esm')(module)(optsPath)
-      opts = opts.default || opts || {}
+      opts = importESM(optsPath)
     }
   }
 
   return opts
-}
-
-function tryResolve(p) {
-  try {
-    return require.resolve(resolve(process.cwd(), p))
-  } catch (e) {
-    return null
-  }
-}
-
-function relativeToCWD(p) {
-  return relative('.', p)
 }

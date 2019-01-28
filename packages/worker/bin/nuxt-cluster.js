@@ -1,13 +1,12 @@
 #!/usr/bin/env node
 
-const { cpus } = require('os')
-
 process.startTime = process.hrtime()
+process.title = process.argv[2]
+
+const { cpus } = require('os')
 
 const { forkWorker, logError } = require('../dist/worker.js')
 
-forkWorker(process.argv.slice(2), cpus().length)
-  .catch((error) => {
-    logError(error)
-    process.exit(1)
-  })
+for (let i = 0; i < cpus().length; i++) {
+  forkWorker().catch(logError)
+}

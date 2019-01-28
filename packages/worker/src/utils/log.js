@@ -1,5 +1,6 @@
 function _log(loggerFn, ...args) {
-  loggerFn(`[${process.title}]`, ...args)
+  const { title = 'worker', pid } = process
+  loggerFn(`[${title}:${pid}]`, ...args)
 }
 
 export function log(...args) {
