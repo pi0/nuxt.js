@@ -16,7 +16,7 @@ export async function forkWorker(...args) {
   // Setup master setting for entrypoint
   cluster.setupMaster({
     exec: require.resolve('@nuxt/worker/bin/nuxt-worker'),
-    args
+    args: args.map(arg => typeof arg === 'object' ? JSON.stringify(arg) : arg)
   })
 
   // Fork worker
