@@ -56,6 +56,15 @@ export default class Server {
     // Proxy
     this.proxy = new Proxy()
 
+    // Setup proxy hooks
+    this.nuxt.hook('server:registerProxy', (prefix, options) => {
+      this.proxy.register(prefix, options)
+    })
+
+    this.nuxt.hook('server:unregisterProxy', (prefix) => {
+      this.proxy.unregister(prefix)
+    })
+
     // Register proxies from options
     const proxies = this.options.server.proxy
     for (const prefix in proxies) {
