@@ -13,6 +13,7 @@ import errorMiddleware from './middleware/error'
 import Listener from './listener'
 import createModernMiddleware from './middleware/modern'
 import createTimingMiddleware from './middleware/timing'
+import Proxy from './proxy'
 
 export default class Server {
   constructor(nuxt) {
@@ -52,6 +53,15 @@ export default class Server {
     this.renderer = new VueRenderer(context)
     await this.renderer.ready()
 
+    // Proxy
+    this.proxy = new Proxy()
+
+    // Register proxies from options
+    const proxies = this.options.server.proxy
+    for (const prefix in proxies) {
+      this.proxy.register(prefix, proxies[prefix])
+    }
+
     // Setup nuxt middleware
     await this.setupMiddleware()
 
@@ -62,6 +72,9 @@ export default class Server {
   async setupMiddleware() {
     // Apply setupMiddleware from modules first
     await this.nuxt.callHook('render:setupMiddleware', this.app)
+
+    // Proxy middleware
+    this.useMiddleware(this.proxy.middleware)
 
     // Compression middleware for production
     if (!this.options.dev) {
@@ -241,6 +254,9 @@ export default class Server {
     // Listen
     await listener.listen()
 
+    // WS proxy support
+    this.proxy.hookUpgrade(listener.server)
+
     // Push listener to this.listeners
     this.listeners.push(listener)
 
@@ -257,6 +273,8 @@ export default class Server {
       await listener.close()
     }
     this.listeners = []
+
+    await this.proxy.close()
 
     if (typeof this.renderer.close === 'function') {
       await this.renderer.close()
