@@ -46,6 +46,12 @@ export default class Server {
   async ready() {
     await this.nuxt.callHook('render:before', this, this.options.render)
 
+    // Setup proxy
+    this.setupProxy()
+
+    // Setup nuxt middleware
+    await this.setupMiddleware()
+
     // Initialize vue-renderer
     const { VueRenderer } = await import('@nuxt/vue-renderer')
 
@@ -53,6 +59,11 @@ export default class Server {
     this.renderer = new VueRenderer(context)
     await this.renderer.ready()
 
+    // Call done hook
+    await this.nuxt.callHook('render:done', this)
+  }
+
+  setupProxy() {
     // Proxy
     this.proxy = new Proxy()
 
@@ -70,12 +81,6 @@ export default class Server {
     for (const prefix in proxies) {
       this.proxy.register(prefix, proxies[prefix])
     }
-
-    // Setup nuxt middleware
-    await this.setupMiddleware()
-
-    // Call done hook
-    await this.nuxt.callHook('render:done', this)
   }
 
   async setupMiddleware() {
