@@ -12,6 +12,11 @@ export default {
     type: 'boolean',
     description: 'Launch in Universal mode (default)'
   },
+  worker: {
+    alias: 'w',
+    type: 'boolean',
+    description: 'Use Nuxt Workers (experimental)'
+  },
   'config-file': {
     alias: 'c',
     type: 'string',
