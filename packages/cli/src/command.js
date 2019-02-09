@@ -13,6 +13,8 @@ export default class NuxtCommand {
     }
     this.cmd = cmd
 
+    cmd.cmd = this
+
     this._argv = Array.from(argv)
     this._parsedArgv = null // Lazy evaluate
   }
