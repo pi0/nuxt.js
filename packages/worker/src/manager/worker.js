@@ -11,7 +11,7 @@ export class Worker {
     this.rootDir = rootDir
     this.options = options
 
-    this.statusCode = WORKER_STATUS.READY
+    this.statusCode = WORKER_STATUS.CREATED
   }
 
   get id() {
@@ -41,13 +41,13 @@ export class Worker {
     this._listenOnExit()
 
     // Update status
-    this.statusCode = WORKER_STATUS.FORKED
+    this.statusCode = WORKER_STATUS.RUNNING
   }
 
   _listenOnExit() {
     this.worker.on('exit', (code, signal) => {
       // Update status
-      this.statusCode = WORKER_STATUS.STOPPED
+      this.statusCode = WORKER_STATUS.EXITED
 
       if (signal) {
         debug(`Worker ${this.id} was killed by signal ${signal}`)
@@ -61,15 +61,13 @@ export class Worker {
 }
 
 const WORKER_STATUS = {
-  EXITED: 0,
-  READY: 1,
-  FORKED: 2,
-  ONLINE: 3
+  CREATED: 0,
+  RUNNING: 1,
+  EXITED: 2
 }
 
 const WORKER_STATUS_STR = {
-  0: 'exited',
-  1: 'ready',
-  2: 'forked',
-  3: 'online'
+  [WORKER_STATUS.CREATED]: 'created',
+  [WORKER_STATUS.RUNNING]: 'running',
+  [WORKER_STATUS.EXITED]: 'exit'
 }
