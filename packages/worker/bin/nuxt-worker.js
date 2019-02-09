@@ -3,9 +3,9 @@
 process.startTime = process.hrtime()
 process.title = process.argv[2]
 
-const { entrypoint, logError } = require('../dist/worker.js')
+const { startWorker, logError } = require('../dist/worker.js')
 
-entrypoint().catch((error) => {
+startWorker().catch((error) => {
   logError(error)
   process.exit(1)
 })

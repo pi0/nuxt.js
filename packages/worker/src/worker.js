@@ -1,4 +1,3 @@
-import { resolve } from 'path'
 import * as workers from './workers'
 import { parseOptions } from './options'
 import { log } from './utils/log'
@@ -6,7 +5,7 @@ import { hrToMs } from './utils/time'
 import { isDirectorySync } from './utils/fs'
 import assignDeep from './utils/assign-deep'
 
-export async function entrypoint(options) {
+export async function startWorker(options) {
   if (!options || Array.isArray(options)) {
     options = parseArgv(options)
   }

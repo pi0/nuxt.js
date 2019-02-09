@@ -1,3 +1,3 @@
-export { entrypoint } from './entrypoint'
-export { forkWorker } from './cluster'
+export { startWorker } from './worker'
+export { forkWorker } from './fork'
 export { log, logError } from './utils/log'
