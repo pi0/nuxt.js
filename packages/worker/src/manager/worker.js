@@ -69,5 +69,5 @@ const WORKER_STATUS = {
 const WORKER_STATUS_STR = {
   [WORKER_STATUS.CREATED]: 'created',
   [WORKER_STATUS.RUNNING]: 'running',
-  [WORKER_STATUS.EXITED]: 'exit'
+  [WORKER_STATUS.EXITED]: 'exited'
 }
