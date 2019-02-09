@@ -1,4 +1,3 @@
 export { startWorker } from './worker'
-export { forkWorker } from './fork'
+export { manager } from './manager'
 export { log, logError } from './utils/log'
-export { ipc } from './ipc'

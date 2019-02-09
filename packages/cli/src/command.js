@@ -1,6 +1,6 @@
 
 import minimist from 'minimist'
-import { forkWorker } from '@nuxt/worker'
+import { manager } from '@nuxt/worker'
 import { name, version } from '../package.json'
 import { loadNuxtConfig, forceExit } from './utils'
 import { indent, foldLines, colorize } from './utils/formatting'
@@ -100,7 +100,7 @@ export default class NuxtCommand {
 
     this.argv['force-exit'] = false
 
-    return forkWorker(name, rootDir, options)
+    return manager.forkWorker(name, rootDir, options)
   }
 
   async getNuxt(options) {
