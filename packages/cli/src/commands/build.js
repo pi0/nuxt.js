@@ -58,19 +58,37 @@ export default {
       }
     }
   },
-  async run(cmd) {
-    const config = await cmd.getNuxtConfig({ dev: false })
-    const nuxt = await cmd.getNuxt(config)
 
-    if (nuxt.options.mode !== 'spa' || cmd.argv.generate === false) {
+  run() {
+    // Worker Mode
+    if (this.cmd.argv.worker) {
+      return this.buildWorker()
+    }
+
+    return this.build()
+  },
+
+  async build() {
+    const config = await this.cmd.getNuxtConfig({ dev: false })
+    const nuxt = await this.cmd.getNuxt(config)
+
+    if (nuxt.options.mode !== 'spa' || this.cmd.argv.generate === false) {
       // Build only
-      const builder = await cmd.getBuilder(nuxt)
+      const builder = await this.cmd.getBuilder(nuxt)
       await builder.build()
       return
     }
 
     // Build + Generate for static deployment
-    const generator = await cmd.getGenerator(nuxt)
+    const generator = await this.cmd.getGenerator(nuxt)
     await generator.generate({ build: true })
+  },
+
+  // ------------------------------------
+  // Worker
+  // ------------------------------------
+  async buildWorker() {
+    throw new Error('TODO')
   }
+
 }

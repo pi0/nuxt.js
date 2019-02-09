@@ -19,58 +19,48 @@ export default {
     }
   },
 
-  async run(cmd) {
-    const { argv } = cmd
-    const nuxt = await this.startDev(cmd, argv)
-
-    // Opens the server listeners url in the default browser
-    if (argv.open) {
-      const openerPromises = nuxt.server.listeners.map(listener => opener(listener.url))
-      await Promise.all(openerPromises)
+  run() {
+    // Worker Mode
+    if (this.cmd.argv.worker) {
+      return this.startDevWorker()
     }
+
+    return this.startDev(true)
   },
 
-  async startDev(cmd, argv) {
-    if (argv.worker) {
-      return this._startDevWorker(cmd, argv)
-    }
-
+  async startDev(initial = false) {
     try {
-      const nuxt = await this._startDev(cmd, argv)
+      const config = await this.cmd.getNuxtConfig({ dev: true })
+      const nuxt = await this.cmd.getNuxt(config)
 
-      return nuxt
+      // Setup hooks
+      nuxt.hook('watch:restart', payload => this.onWatchRestart(payload, { nuxt, builder }))
+      nuxt.hook('bundler:change', changedFileName => this.onBundlerChange(changedFileName))
+
+      // Start listening
+      await nuxt.server.listen()
+
+      // Create builder instance
+      const builder = await this.cmd.getBuilder(nuxt)
+
+      // Start Build
+      await builder.build()
+
+      // Show banner after build
+      showBanner(nuxt)
+
+      // Opens the server listeners url in the default browser
+      if (initial && this.cmd.argv.open) {
+        const openerPromises = nuxt.server.listeners.map(listener => opener(listener.url))
+        await Promise.all(openerPromises)
+      }
     } catch (error) {
       consola.error(error)
     }
   },
 
-  async _startDev(cmd, argv) {
-    const config = await cmd.getNuxtConfig({ dev: true })
-    const nuxt = await cmd.getNuxt(config)
-
-    // Setup hooks
-    nuxt.hook('watch:restart', payload => this.onWatchRestart(payload, { nuxt, builder, cmd, argv }))
-    nuxt.hook('bundler:change', changedFileName => this.onBundlerChange(changedFileName))
-
-    // Start listening
-    await nuxt.server.listen()
-
-    // Create builder instance
-    const builder = await cmd.getBuilder(nuxt)
-
-    // Start Build
-    await builder.build()
-
-    // Show banner after build
-    showBanner(nuxt)
-
-    // Return instance
-    return nuxt
-  },
-
   logChanged({ event, path }) {
     const { icon, color, action } = eventsMapping[event] || eventsMapping.change
-
     consola.log({
       type: event,
       icon: chalk[color].bold(icon),
@@ -78,28 +68,23 @@ export default {
     })
   },
 
-  async onWatchRestart({ event, path }, { nuxt, cmd, argv }) {
+  async onWatchRestart({ event, path }, { nuxt }) {
     this.logChanged({ event, path })
-
     await nuxt.close()
-
-    await this.startDev(cmd, argv)
+    await this.startDev()
   },
 
   onBundlerChange(path) {
     this.logChanged({ event: 'change', path })
   },
 
-  // ------------------------------------
-  // Worker
-  // ------------------------------------
-  async _startDevWorker(cmd, argv) {
+  async startDevWorker() {
     // Setup hooks
     // TODO
     // nuxt.hook('watch:restart', payload => this.onWatchRestart(payload, { nuxt, builder, cmd, argv }))
     // nuxt.hook('bundler:change', changedFileName => this.onBundlerChange(changedFileName))
 
-    const rootDir = argv._[0] || '.'
+    const rootDir = this.argv._[0] || '.'
     const opts = {
       dev: true
     }

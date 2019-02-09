@@ -34,8 +34,18 @@ export default {
       }
     }
   },
-  async run(cmd) {
-    const config = await cmd.getNuxtConfig({ dev: false })
+
+  run() {
+    // Worker Mode
+    if (this.cmd.argv.worker) {
+      return this.generateWorker()
+    }
+
+    return this.generate()
+  },
+
+  async generate() {
+    const config = await this.cmd.getNuxtConfig({ dev: false })
 
     // Disable analyze if set by the nuxt config
     if (!config.build) {
@@ -43,12 +53,16 @@ export default {
     }
     config.build.analyze = false
 
-    const nuxt = await cmd.getNuxt(config)
-    const generator = await cmd.getGenerator(nuxt)
+    const nuxt = await this.cmd.getNuxt(config)
+    const generator = await this.cmd.getGenerator(nuxt)
 
     await generator.generate({
       init: true,
       build: cmd.argv.build
     })
+  },
+
+  async generateWorker() {
+    throw new Error('TODO')
   }
 }
