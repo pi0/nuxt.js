@@ -1,11 +1,14 @@
 import { Worker } from './worker'
 
 class Manager {
-  forkWorker(workerName, rootDir, options) {
-    const worker = new Worker(workerName, rootDir, options)
-    worker.fork()
+  constructor() {
+    this.workers = []
+  }
 
-    return Promise.resolve()
+  async forkWorker(workerName, rootDir, options) {
+    const worker = new Worker(workerName, rootDir, options)
+    this.workers.push(worker)
+    await worker.start()
   }
 }
 

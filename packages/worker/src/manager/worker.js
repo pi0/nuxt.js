@@ -22,7 +22,7 @@ export class Worker {
     return WORKER_STATUS_STR[this.statusCode]
   }
 
-  fork() {
+  start() {
     // Setup master setting for entrypoint
     cluster.setupMaster({
       exec: require.resolve('@nuxt/worker/bin/nuxt-worker'),
