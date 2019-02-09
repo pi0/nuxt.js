@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 process.startTime = process.hrtime()
-process.title = process.argv[2]
+process.name = process.argv[2]
 
 const { startWorker, logError } = require('../dist/worker.js')
 

@@ -1,4 +1,4 @@
-import { log } from './log'
+import { debug } from './log'
 import { importESM } from './esm'
 import { tryResolve, relativeToCWD } from './fs'
 
@@ -18,7 +18,7 @@ export function parseOptions(arg) {
     // Try to resolve
     const optsPath = tryResolve(arg)
     if (optsPath) {
-      log('Loading config from: ' + relativeToCWD(optsPath))
+      debug('Loading config from: ' + relativeToCWD(optsPath))
       opts = importESM(optsPath)
     }
   }

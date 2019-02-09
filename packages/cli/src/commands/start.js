@@ -1,4 +1,3 @@
-import { forkWorker } from '@nuxt/worker'
 import { common, server } from '../options'
 import { showBanner } from '../utils'
 

@@ -1,6 +1,13 @@
 function _log(loggerFn, ...args) {
-  const { title = 'worker', pid } = process
-  loggerFn(`[${title}:${pid}]`, ...args)
+  const id = process.name || process.id
+  loggerFn(`[${id}]`, ...args)
+}
+
+export function debug(...args) {
+  if (process.env.DEBUG) {
+    // eslint-disable-next-line no-console
+    _log(console.log, ...args)
+  }
 }
 
 export function log(...args) {

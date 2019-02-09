@@ -1,12 +1,14 @@
 #!/usr/bin/env node
 
+const [workerName, rootDir, options] = process.argv.slice(2)
+
 process.startTime = process.hrtime()
-process.title = process.argv[2]
+process.name = workerName
 
 const { cpus } = require('os')
 
-const { forkWorker, logError } = require('../dist/worker.js')
+const { manager, logError } = require('../dist/worker.js')
 
 for (let i = 0; i < cpus().length; i++) {
-  forkWorker().catch(logError)
+  manager.forkWorker(workerName, rootDir, options).catch(logError)
 }

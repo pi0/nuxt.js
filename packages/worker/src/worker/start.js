@@ -1,5 +1,5 @@
 import { parseOptions } from '../utils/options'
-import { log } from '../utils/log'
+import { debug } from '../utils/log'
 import { hrToMs } from '../utils/time'
 import { isDirectorySync } from '../utils/fs'
 import assignDeep from '../utils/assign-deep'
@@ -36,17 +36,17 @@ export async function startWorker(options) {
 
   // Show ready + time
   const time = hrToMs(process.hrtime(process.startTime))
-  log(`Initialized in: ${time}ms`)
+  debug(`Initialized in: ${time}ms`)
 }
 
 function parseArgv(_argv) {
   // Extract args
   const argv = _argv ? Array.from(_argv) : process.argv.slice(2)
-  const [workerName, rootDir, ...optionsArr] = argv
+  const [workerName, rootDir, options] = argv
 
   // Resolve and merge all options
   return assignDeep({},
-    ...optionsArr.map(parseOptions),
+    parseOptions(options),
     { rootDir, workerName }
   )
 }
