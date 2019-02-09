@@ -1,17 +1,6 @@
 import cluster from 'cluster'
-import { log } from './utils/log'
 
-// Listen to worker exit event
-cluster.on('exit', (worker, code, signal) => {
-  if (code === 0) {
-    log(`Worker ${worker.process.pid} finished successfully.`)
-  } else {
-    log(`Worker ${worker.process.pid} ended with error code ${code}.`)
-  }
-})
-
-// eslint-disable-next-line require-await
-export async function forkWorker(...args) {
+export function forkWorker(...args) {
   // Proxy args by default
   if (!args.length) {
     args = process.argv.slice(2)

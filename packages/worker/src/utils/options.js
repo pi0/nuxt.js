@@ -1,6 +1,6 @@
-import { log } from './utils/log'
-import { importESM } from './utils/esm'
-import { tryResolve, relativeToCWD } from './utils/fs'
+import { log } from './log'
+import { importESM } from './esm'
+import { tryResolve, relativeToCWD } from './fs'
 
 export function parseOptions(arg) {
   let opts = {}

@@ -1,5 +1,5 @@
 import * as workers from './workers'
-import { parseOptions } from './options'
+import { parseOptions } from './utils/options'
 import { log } from './utils/log'
 import { hrToMs } from './utils/time'
 import { isDirectorySync } from './utils/fs'
