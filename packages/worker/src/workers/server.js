@@ -1,4 +1,4 @@
-import { getNuxt } from '../../utils/nuxt'
+import { getNuxt } from '../utils/nuxt'
 
 export default async function server(opts) {
   const nuxt = await getNuxt(opts)

@@ -3,9 +3,9 @@
 process.startTime = process.hrtime()
 process.name = process.argv[2]
 
-const { startWorker, logError } = require('../dist/worker.js')
+const { startWorker } = require('../dist/worker.js')
 
 startWorker().catch((error) => {
-  logError(error)
+  require('consola').error(error)
   process.exit(1)
 })

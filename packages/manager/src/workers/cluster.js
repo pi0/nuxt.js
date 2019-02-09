@@ -1,5 +1,5 @@
 import cluster from 'cluster'
-import { debug } from '../../utils/log'
+import consola from 'consola'
 import { WORKER_STATUS } from '../consts'
 import { BaseWorker } from './base'
 
@@ -9,7 +9,7 @@ export class ClusterWorker extends BaseWorker {
   }
 
   get id() {
-    return this.workerName + ':' + (this.worker ? this.worker.id : '??')
+    return this.worker.process.pid
   }
 
   start() {
@@ -40,11 +40,11 @@ export class ClusterWorker extends BaseWorker {
       this.statusCode = WORKER_STATUS.EXITED
 
       if (signal) {
-        debug(`Worker ${this.id} was killed by signal ${signal}`)
+        consola.debug(`Worker ${this.id} was killed by signal ${signal}`)
       } else if (code !== 0) {
-        debug(`Worker ${this.id} exited with error code: ${code}`)
+        consola.debug(`Worker ${this.id} exited with error code: ${code}`)
       } else {
-        debug(`Worker ${this.id} finished successfully`)
+        consola.debug(`Worker ${this.id} finished successfully`)
       }
     })
   }

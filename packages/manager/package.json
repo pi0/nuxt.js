@@ -1,5 +1,5 @@
 {
-  "name": "@nuxt/worker",
+  "name": "@nuxt/manager",
   "version": "0.0.0",
   "repository": "nuxt/nuxt.js",
   "license": "MIT",
@@ -7,14 +7,14 @@
     "bin",
     "dist"
   ],
-  "main": "dist/worker.js",
+  "main": "dist/manager.js",
   "bin": {
-    "nuxt-cluster": "bin/nuxt-cluster.js",
-    "nuxt-worker": "bin/nuxt-worker.js"
+    "nuxt-cluster": "bin/nuxt-cluster.js"
   },
   "dependencies": {
+    "@nuxt/worker": "0.0.0",
+    "cli-table": "^0.3.1",
     "consola": "^2.4.0",
-    "defu": "^0.0.1",
     "esm": "^3.2.0"
   },
   "publishConfig": {

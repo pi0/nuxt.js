@@ -1,8 +1,6 @@
-import { parseOptions } from '../utils/options'
-import { debug } from '../utils/log'
-import { hrToMs } from '../utils/time'
-import { isDirectorySync } from '../utils/fs'
-import assignDeep from '../utils/assign-deep'
+import defu from 'defu'
+import { parseOptions } from './utils/options'
+import { isDirectorySync } from './utils/fs'
 
 import * as workers from './workers'
 
@@ -29,14 +27,10 @@ export async function startWorker(options) {
 
   // Options from {rootDir}/nuxt.config
   const nuxtConfig = parseOptions('nuxt.config')
-  const workerOptions = assignDeep({}, nuxtConfig, options)
+  const workerOptions = defu(options, nuxtConfig)
 
   // Invoke worker
   await worker(workerOptions)
-
-  // Show ready + time
-  const time = hrToMs(process.hrtime(process.startTime))
-  debug(`Initialized in: ${time}ms`)
 }
 
 function parseArgv(_argv) {
@@ -45,8 +39,5 @@ function parseArgv(_argv) {
   const [workerName, rootDir, options] = argv
 
   // Resolve and merge all options
-  return assignDeep({},
-    parseOptions(options),
-    { rootDir, workerName }
-  )
+  return defu({ rootDir, workerName }, parseOptions(options))
 }

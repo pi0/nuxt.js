@@ -14,7 +14,7 @@ export class BaseWorker {
   }
 
   get id() {
-    return this.workerName
+    return '??'
   }
 
   get status() {

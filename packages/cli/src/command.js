@@ -1,6 +1,6 @@
 
 import minimist from 'minimist'
-import { manager } from '@nuxt/worker'
+import { manager } from '@nuxt/manager'
 import { name, version } from '../package.json'
 import { loadNuxtConfig, forceExit } from './utils'
 import { indent, foldLines, colorize } from './utils/formatting'

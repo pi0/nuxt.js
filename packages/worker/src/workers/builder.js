@@ -1,4 +1,4 @@
-import { getNuxt, getBuilder } from '../../utils/nuxt'
+import { getNuxt, getBuilder } from '../utils/nuxt'
 
 export default async function builder(opts) {
   try {
