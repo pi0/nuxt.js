@@ -1,7 +1,6 @@
 import consola from 'consola'
 import chalk from 'chalk'
 import opener from 'opener'
-import { forkWorker } from '@nuxt/worker'
 import { common, server } from '../options'
 import { showBanner, eventsMapping, formatPath } from '../utils'
 
@@ -79,24 +78,10 @@ export default {
   },
 
   async startDevWorker() {
-    // Setup hooks
-    // TODO
-    // nuxt.hook('watch:restart', payload => this.onWatchRestart(payload, { nuxt, builder, cmd, argv }))
-    // nuxt.hook('bundler:change', changedFileName => this.onBundlerChange(changedFileName))
-
-    const rootDir = this.argv._[0] || '.'
-    const opts = {
-      dev: true
-    }
-
     // Start server worker
-    await forkWorker('server', rootDir, opts)
+    await this.cmd.forkWorker('server', { dev: true })
 
-    /// Start builder worker
-    await forkWorker('builder', rootDir, opts)
-
-    // Show banner after build
-    // TODO
-    // showBanner(nuxt)
+    // Start builder worker
+    await this.cmd.forkWorker('builder', { dev: true })
   }
 }

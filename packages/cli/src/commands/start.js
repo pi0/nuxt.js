@@ -29,6 +29,7 @@ export default {
   },
 
   async startWorker() {
-    throw new Error('TODO')
+    // Start server worker
+    await this.cmd.forkWorker('server', { dev: false })
   }
 }

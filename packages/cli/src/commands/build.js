@@ -88,7 +88,8 @@ export default {
   // Worker
   // ------------------------------------
   async buildWorker() {
-    throw new Error('TODO')
+    // Start builder worker
+    await this.cmd.forkWorker('builder', { dev: false })
   }
 
 }

@@ -3,7 +3,11 @@ import { log } from './utils/log'
 
 // Listen to worker exit event
 cluster.on('exit', (worker, code, signal) => {
-  log(`Worker ${worker.process.pid} died. ${signal} (${code})`)
+  if (code === 0) {
+    log(`Worker ${worker.process.pid} finished successfully.`)
+  } else {
+    log(`Worker ${worker.process.pid} ended with error code ${code}.`)
+  }
 })
 
 // eslint-disable-next-line require-await

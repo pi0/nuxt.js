@@ -1,5 +1,6 @@
 
 import minimist from 'minimist'
+import { forkWorker } from '@nuxt/worker'
 import { name, version } from '../package.json'
 import { loadNuxtConfig, forceExit } from './utils'
 import { indent, foldLines, colorize } from './utils/formatting'
@@ -76,10 +77,30 @@ export default class NuxtCommand {
     const options = Object.assign(config, extraOptions || {})
 
     for (const name of Object.keys(this.cmd.options)) {
-      this.cmd.options[name].prepare && this.cmd.options[name].prepare(this, options, this.argv)
+      if (this.cmd.options[name].prepare) {
+        this.cmd.options[name].prepare(this, options, this.argv)
+      }
     }
 
     return options
+  }
+
+  forkWorker(name, _options) {
+    const rootDir = this.argv._[0] || '.'
+
+    const options = {
+      ..._options
+    }
+
+    for (const name of Object.keys(this.cmd.options)) {
+      if (this.cmd.options[name].prepare) {
+        this.cmd.options[name].prepare(this, options, this.argv)
+      }
+    }
+
+    this.argv['force-exit'] = false
+
+    return forkWorker(name, rootDir, options)
   }
 
   async getNuxt(options) {
