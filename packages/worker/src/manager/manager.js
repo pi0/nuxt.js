@@ -1,6 +1,6 @@
 import { ClusterWorker } from './workers/cluster'
 
-class Manager {
+export class Manager {
   constructor() {
     this.workers = []
   }
