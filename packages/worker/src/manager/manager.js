@@ -1,4 +1,4 @@
-import { Worker } from './worker'
+import { ClusterWorker } from './workers/cluster'
 
 class Manager {
   constructor() {
@@ -6,7 +6,7 @@ class Manager {
   }
 
   async forkWorker(workerName, rootDir, options) {
-    const worker = new Worker(workerName, rootDir, options)
+    const worker = new ClusterWorker(workerName, rootDir, options)
     this.workers.push(worker)
     await worker.start()
   }

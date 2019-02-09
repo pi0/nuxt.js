@@ -1,25 +1,15 @@
 import cluster from 'cluster'
-import { debug } from '../utils/log'
+import { debug } from '../../utils/log'
+import { WORKER_STATUS } from '../consts'
+import { BaseWorker } from './base'
 
-export class Worker {
+export class ClusterWorker extends BaseWorker {
   constructor(workerName, rootDir = '.', options = {}) {
-    if (typeof options === 'string' && options[0] === '{') {
-      options = JSON.parse(options)
-    }
-
-    this.workerName = workerName
-    this.rootDir = rootDir
-    this.options = options
-
-    this.statusCode = WORKER_STATUS.CREATED
+    super(workerName, rootDir, options)
   }
 
   get id() {
-    return this.workerName + ':' + (this.worker ? this.worker.id : '?')
-  }
-
-  get status() {
-    return WORKER_STATUS_STR[this.statusCode]
+    return this.workerName + ':' + (this.worker ? this.worker.id : '??')
   }
 
   start() {
@@ -58,16 +48,4 @@ export class Worker {
       }
     })
   }
-}
-
-const WORKER_STATUS = {
-  CREATED: 0,
-  RUNNING: 1,
-  EXITED: 2
-}
-
-const WORKER_STATUS_STR = {
-  [WORKER_STATUS.CREATED]: 'created',
-  [WORKER_STATUS.RUNNING]: 'running',
-  [WORKER_STATUS.EXITED]: 'exited'
 }
