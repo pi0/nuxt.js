@@ -13,16 +13,11 @@ import Hookable from './hookable'
 import Resolver from './resolver'
 
 export default class Nuxt extends Hookable {
-  constructor(options = {}) {
+  constructor(_options = {}) {
     super()
 
     // Assign options and apply defaults
-    this.options = getNuxtConfig(options)
-
-    // Create instance of core components
-    this.resolver = new Resolver(this)
-    this.moduleContainer = new ModuleContainer(this)
-    this.server = new Server(this)
+    this.options = getNuxtConfig(_options)
 
     // Deprecated hooks
     this._deprecatedHooks = {
@@ -31,11 +26,22 @@ export default class Nuxt extends Hookable {
       'showReady': 'webpack:done' // Workaround to deprecate showReady
     }
 
-    // Add Legacy aliases
-    defineAlias(this, this.server, ['renderRoute', 'renderAndGetWindow', 'listen'])
+    // Create resolver
+    this.resolver = new Resolver(this)
     defineAlias(this, this.resolver, ['resolveAlias', 'resolvePath'])
-    this.renderer = this.server
-    this.render = this.server.app
+
+    // Create moduleContainer
+    this.moduleContainer = new ModuleContainer(this)
+
+    // Create server
+    if (this.options.server) {
+      this.server = new Server(this)
+      defineAlias(this, this.server, ['renderRoute', 'renderAndGetWindow', 'listen'])
+      this.renderer = this.server
+      this.render = this.server.app
+    }
+
+    // Legacy aliases
     this.showReady = () => { this.callHook('webpack:done') }
 
     // Wait for Nuxt to be ready
