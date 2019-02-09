@@ -1,5 +1,5 @@
 import cluster from 'cluster'
-import { log } from './utils/log'
+import { log } from '../utils/log'
 
 class Manager {
   constructor() {

@@ -1,9 +1,10 @@
+import { parseOptions } from '../utils/options'
+import { log } from '../utils/log'
+import { hrToMs } from '../utils/time'
+import { isDirectorySync } from '../utils/fs'
+import assignDeep from '../utils/assign-deep'
+
 import * as workers from './workers'
-import { parseOptions } from './utils/options'
-import { log } from './utils/log'
-import { hrToMs } from './utils/time'
-import { isDirectorySync } from './utils/fs'
-import assignDeep from './utils/assign-deep'
 
 export async function startWorker(options) {
   if (!options || Array.isArray(options)) {
