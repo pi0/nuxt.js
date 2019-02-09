@@ -1,5 +1,6 @@
 import consola from 'consola'
 import chalk from 'chalk'
+import opener from 'opener'
 import { forkWorker } from '@nuxt/worker'
 import { common, server } from '../options'
 import { showBanner, eventsMapping, formatPath } from '../utils'
@@ -10,12 +11,23 @@ export default {
   usage: 'dev <dir>',
   options: {
     ...common,
-    ...server
+    ...server,
+    open: {
+      alias: 'o',
+      type: 'boolean',
+      description: 'Opens the server listeners url in the default browser'
+    }
   },
 
   async run(cmd) {
     const { argv } = cmd
-    await this.startDev(cmd, argv)
+    const nuxt = await this.startDev(cmd, argv)
+
+    // Opens the server listeners url in the default browser
+    if (argv.open) {
+      const openerPromises = nuxt.server.listeners.map(listener => opener(listener.url))
+      await Promise.all(openerPromises)
+    }
   },
 
   async startDev(cmd, argv) {
@@ -24,7 +36,9 @@ export default {
     }
 
     try {
-      await this._startDev(cmd, argv)
+      const nuxt = await this._startDev(cmd, argv)
+
+      return nuxt
     } catch (error) {
       consola.error(error)
     }
