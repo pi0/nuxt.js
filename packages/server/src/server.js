@@ -46,18 +46,18 @@ export default class Server {
   async ready() {
     await this.nuxt.callHook('render:before', this, this.options.render)
 
-    // Setup proxy
-    this.setupProxy()
-
-    // Setup nuxt middleware
-    await this.setupMiddleware()
-
     // Initialize vue-renderer
     const { VueRenderer } = await import('@nuxt/vue-renderer')
 
     const context = new ServerContext(this)
     this.renderer = new VueRenderer(context)
     await this.renderer.ready()
+
+    // Setup proxy
+    this.setupProxy()
+
+    // Setup nuxt middleware
+    await this.setupMiddleware()
 
     // Call done hook
     await this.nuxt.callHook('render:done', this)
