@@ -52,6 +52,6 @@ export class ClusterWorker extends BaseWorker {
   }
 
   sendMessage(message) {
-
+    this.worker.send(message)
   }
 }
