@@ -1,5 +1,4 @@
 import cluster from 'cluster'
-import consola from 'consola'
 import { WORKER_STATUS } from '../consts'
 import { BaseWorker } from './base'
 
@@ -9,7 +8,7 @@ export class ClusterWorker extends BaseWorker {
   }
 
   get id() {
-    return this.worker.process.pid
+    return this.worker.process.pid || -1
   }
 
   start() {
@@ -27,11 +26,19 @@ export class ClusterWorker extends BaseWorker {
     this.worker = cluster.fork()
     this.worker.process.name = this.workerName
 
-    // Listen on exit message from worker
+    // Setup listeners
     this._listenOnExit()
+    this._listenOnMessage()
 
     // Update status
     this.statusCode = WORKER_STATUS.RUNNING
+  }
+
+  _listenOnMessage() {
+    this.worker.on('message', (message) => {
+      // Emit message event
+      this.emit('message', message)
+    })
   }
 
   _listenOnExit() {
@@ -39,13 +46,12 @@ export class ClusterWorker extends BaseWorker {
       // Update status
       this.statusCode = WORKER_STATUS.EXITED
 
-      if (signal) {
-        consola.debug(`Worker ${this.id} was killed by signal ${signal}`)
-      } else if (code !== 0) {
-        consola.debug(`Worker ${this.id} exited with error code: ${code}`)
-      } else {
-        consola.debug(`Worker ${this.id} finished successfully`)
-      }
+      // Emit exit event
+      this.emit('exit', code, signal)
     })
+  }
+
+  sendMessage(message) {
+
   }
 }

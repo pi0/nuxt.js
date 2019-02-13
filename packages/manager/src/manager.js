@@ -16,9 +16,32 @@ export class Manager {
     console.log(table.toString()) // eslint-disable-line no-console
   }
 
+  registerWorker(worker) {
+    this.workers.push(worker)
+
+    // Simple event logger
+    worker.on('event', (event) => {
+      let message
+      switch (event) {
+        case 'status': message = `Status changed to ${worker.status}`; break
+        default: message = `Emitted event ${event}`; break
+      }
+      console.log(`[${worker.id}]`, message) // eslint-disable-line no-console
+    })
+
+    // Broadcast messages to all workers
+    worker.on('message', (message) => {
+      for (const _worker of this.workers) {
+        if (_worker !== worker) {
+          _worker.sendMessage(message)
+        }
+      }
+    })
+  }
+
   async forkWorker(workerName, rootDir, options) {
     const worker = new ClusterWorker(workerName, rootDir, options)
-    this.workers.push(worker)
+    this.registerWorker(worker)
     await worker.start()
   }
 }
