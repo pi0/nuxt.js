@@ -26,7 +26,7 @@ export class Manager {
         case 'status': message = `Status changed to ${worker.status}`; break
         default: message = `Emitted event ${event}`; break
       }
-      console.log(`[${worker.id}]`, message) // eslint-disable-line no-console
+      console.log(`[${worker.workerName}] [${worker.id}]`, message) // eslint-disable-line no-console
     })
 
     // Broadcast messages to all workers
