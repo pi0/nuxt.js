@@ -1,3 +1,5 @@
+import { Server } from 'http'
+
 export class WorkerBridge {
   constructor() {
     this._send = process.send.bind(process)
@@ -6,24 +8,11 @@ export class WorkerBridge {
     }
   }
 
-  send(type, payload, options = {}) {
+  send(type, payload) {
     this._send({
       type,
-      payload,
-      options
+      payload
     })
-  }
-
-  boradcast(type, payload) {
-    this.send(type, payload, { boradcast: true })
-  }
-
-  setStatus(statusName) {
-    this.send('status', statusName.toUpperCase())
-  }
-
-  setRunning() {
-    this.setStatus('RUNNING')
   }
 
   onError(error) {
@@ -35,7 +24,7 @@ export class WorkerBridge {
   }
 
   exit(code = 0) {
-    this.send('exiting', code)
+    this.send('exit', code)
     process.exit(code)
   }
 }

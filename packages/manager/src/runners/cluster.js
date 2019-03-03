@@ -8,7 +8,7 @@ export class ClusterRunner extends BaseRunner {
   }
 
   get id() {
-    return this.worker.process.pid || -1
+    return this.worker ? this.worker.process.pid : -1
   }
 
   start() {
@@ -30,13 +30,20 @@ export class ClusterRunner extends BaseRunner {
     this._listenOnMessage()
 
     // Update status
-    this.statusCode = WORKER_STATUS.STARTED
+    this.status = WORKER_STATUS.STARTED
+  }
+
+  send(type, payload) {
+    if (!this.worker) {
+      return
+    }
+    this.worker.send(type, payload)
   }
 
   _listenOnMessage() {
     this.worker.on('message', (msg) => {
       if (msg && typeof msg === 'object' && msg.type) {
-        this._onMessage(msg.type, msg.payload, msg.options)
+        this.emit('message', msg.type, msg.payload)
       }
     })
   }
@@ -44,14 +51,10 @@ export class ClusterRunner extends BaseRunner {
   _listenOnExit() {
     this.worker.on('exit', (code, signal) => {
       // Update status
-      this.statusCode = WORKER_STATUS.EXITED
+      this.status = WORKER_STATUS.EXITED
 
       // Emit exit event
       this.emit('exit', code, signal)
     })
-  }
-
-  send(type, payload) {
-    this.worker.send(type, payload)
   }
 }

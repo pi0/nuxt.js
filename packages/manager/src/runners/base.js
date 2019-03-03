@@ -16,40 +16,17 @@ export class BaseRunner extends EventEmitter {
     this._statusCode = WORKER_STATUS.CREATED
   }
 
-  get id() {
-    return -1
-  }
-
-  set statusCode(_statusCode) {
-    this._statusCode = _statusCode
-    this._emitEvent('status', {
-      code: _statusCode,
-      name: this.status
-    })
+  set status(_statusCode) {
+    this._statusCode = WORKER_STATUS[_statusCode] || _statusCode
+    this.emit('update', 'status', this._statusCode)
   }
 
   get status() {
     return WORKER_STATUS_STR[this._statusCode]
   }
 
+  // -- Abstracts --
+  get id() {}
+  start() {}
   send() {}
-
-  _emitEvent(event, payload) {
-    this.emit('event', event, payload)
-  }
-
-  _onMessage(type, payload, options) {
-    // Handle known types
-    switch (type) {
-      case 'status':
-        const newStatus = WORKER_STATUS[payload]
-        if (newStatus) {
-          this.statusCode = newStatus
-        }
-        break
-    }
-
-    // Emit to parent
-    this.emit('message', type, payload, options)
-  }
 }
