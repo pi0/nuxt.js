@@ -6,6 +6,6 @@ process.name = process.argv[2]
 const { startWorker } = require('../dist/worker.js')
 
 startWorker().catch((error) => {
-  require('consola').error(error)
-  process.exit(1)
+  console.error(error) // eslint-disable-line no-console
+  process.exit(2)
 })

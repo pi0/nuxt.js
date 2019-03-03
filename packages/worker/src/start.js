@@ -3,6 +3,7 @@ import { parseOptions } from './utils/options'
 import { isDirectorySync } from './utils/fs'
 
 import * as workers from './workers'
+import { WorkerBridge } from './bridge'
 
 export async function startWorker(options) {
   if (!options || Array.isArray(options)) {
@@ -29,8 +30,14 @@ export async function startWorker(options) {
   const nuxtConfig = parseOptions('nuxt.config')
   const workerOptions = defu(options, nuxtConfig)
 
+  // Create a bridge
+  const bridge = new WorkerBridge()
+
   // Invoke worker
-  await worker(workerOptions)
+  await worker(workerOptions, bridge).catch((error) => {
+    bridge.onError(error)
+    bridge.exit(1)
+  })
 }
 
 function parseArgv(_argv) {

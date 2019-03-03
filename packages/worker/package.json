@@ -13,7 +13,6 @@
     "nuxt-worker": "bin/nuxt-worker.js"
   },
   "dependencies": {
-    "consola": "^2.5.6",
     "defu": "^0.0.1",
     "esm": "^3.2.9"
   },

@@ -1,8 +1,8 @@
 import cluster from 'cluster'
 import { WORKER_STATUS } from '../consts'
-import { BaseWorker } from './base'
+import { BaseRunner } from './base'
 
-export class ClusterWorker extends BaseWorker {
+export class ClusterRunner extends BaseRunner {
   constructor(workerName, rootDir = '.', options = {}) {
     super(workerName, rootDir, options)
   }
@@ -24,20 +24,20 @@ export class ClusterWorker extends BaseWorker {
 
     // Fork worker
     this.worker = cluster.fork()
-    this.worker.process.name = this.workerName
 
     // Setup listeners
     this._listenOnExit()
     this._listenOnMessage()
 
     // Update status
-    this.statusCode = WORKER_STATUS.RUNNING
+    this.statusCode = WORKER_STATUS.STARTED
   }
 
   _listenOnMessage() {
-    this.worker.on('message', (message) => {
-      // Emit message event
-      this.emit('message', message)
+    this.worker.on('message', (msg) => {
+      if (msg && typeof msg === 'object' && msg.type) {
+        this._onMessage(msg.type, msg.payload, msg.options)
+      }
     })
   }
 
@@ -51,7 +51,7 @@ export class ClusterWorker extends BaseWorker {
     })
   }
 
-  sendMessage(message) {
-    this.worker.send(message)
+  send(type, payload) {
+    this.worker.send(type, payload)
   }
 }

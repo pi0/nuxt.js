@@ -1,7 +1,7 @@
 import EventEmitter from 'events'
 import { WORKER_STATUS, WORKER_STATUS_STR } from '../consts'
 
-export class BaseWorker extends EventEmitter {
+export class BaseRunner extends EventEmitter {
   constructor(workerName, rootDir = '.', options = {}) {
     super()
 
@@ -22,15 +22,34 @@ export class BaseWorker extends EventEmitter {
 
   set statusCode(_statusCode) {
     this._statusCode = _statusCode
-    this.emit('status', _statusCode)
+    this._emitEvent('status', {
+      code: _statusCode,
+      name: this.status
+    })
   }
 
   get status() {
     return WORKER_STATUS_STR[this._statusCode]
   }
 
-  emit(event, ...args) {
-    super.emit('event', event, ...args)
-    super.emit(event, ...args)
+  send() {}
+
+  _emitEvent(event, payload) {
+    this.emit('event', event, payload)
+  }
+
+  _onMessage(type, payload, options) {
+    // Handle known types
+    switch (type) {
+      case 'status':
+        const newStatus = WORKER_STATUS[payload]
+        if (newStatus) {
+          this.statusCode = newStatus
+        }
+        break
+    }
+
+    // Emit to parent
+    this.emit('message', type, payload, options)
   }
 }

@@ -1,48 +1,72 @@
 import Table from 'cli-table'
-import { ClusterWorker } from './workers/cluster'
+import { ClusterRunner } from './runners/cluster'
 
 export class Manager {
   constructor() {
-    this.workers = []
+    this._runners = []
+    this._subscribers = {} // type => [runners]
   }
 
   showStatus() {
     const table = new Table({
       head: ['Name', 'ID', 'Status']
     })
-    for (const worker of this.workers) {
-      table.push([worker.workerName, worker.id, worker.status])
+    for (const runner of this.runners) {
+      table.push([runner.workerName, runner.id, runner.status])
     }
     console.log(table.toString()) // eslint-disable-line no-console
   }
 
-  registerWorker(worker) {
-    this.workers.push(worker)
+  registerRunner(runner) {
+    this._runners.push(runner)
 
-    // Simple event logger
-    worker.on('event', (event) => {
-      let message
-      switch (event) {
-        case 'status': message = `Status changed to ${worker.status}`; break
-        default: message = `Emitted event ${event}`; break
-      }
-      console.log(`[${worker.workerName}] [${worker.id}]`, message) // eslint-disable-line no-console
+    runner.on('event', (event, payload) => {
+      this._handleEvent(runner, event, payload)
     })
 
-    // Broadcast messages to all workers
-    worker.on('message', (message) => {
-      for (const _worker of this.workers) {
-        if (_worker !== worker) {
-          _worker.sendMessage(message)
-        }
-      }
+    runner.on('message', (type, payload, options) => {
+      this._handleMessage(runner, type, payload, options)
     })
   }
 
+  _handleEvent(runner, event, payload) {
+    let message
+
+    switch (event) {
+      case 'status':
+        message = `Status: ${payload.name}`
+        break
+    }
+
+    // eslint-disable-next-line no-console
+    console.log(`[${runner.workerName}] [${runner.id}]`, message)
+  }
+
+  _handleMessage(runner, type, payload, options) {
+    let sendTo
+
+    if (options.broadcast) {
+      sendTo = this._runners.filter(_runner => _runner !== runner)
+    } else {
+      sendTo = this._subscribers[type] || []
+    }
+
+    for (const runner of sendTo) {
+      runner.send(type, payload, options)
+    }
+  }
+
   async forkWorker(workerName, rootDir, options) {
-    const worker = new ClusterWorker(workerName, rootDir, options)
-    this.registerWorker(worker)
-    await worker.start()
+    const runner = new ClusterRunner(workerName, rootDir, options)
+    this.registerRunner(runner)
+    await runner.start()
+  }
+
+  subscribe(type, runner) {
+    if (!this._subscribers[type]) {
+      this._subscribers[type] = []
+    }
+    this._subscribers[type].push(runner)
   }
 }
 
