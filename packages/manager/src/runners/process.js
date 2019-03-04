@@ -12,17 +12,8 @@ export class ProcessRunner extends BaseRunner {
   }
 
   start() {
-    // Fork a worker
-    this.process = fork(
-      require.resolve('@nuxt/worker/bin/nuxt-worker'),
-      [
-        this.workerName,
-        this.rootDir,
-        JSON.stringify(this.options)
-      ], {
-        stdout: process.stdout,
-        stderr: process.stderr
-      })
+    // Fork process
+    this._fork()
 
     // Setup listeners
     this._listenOnExit()
@@ -40,6 +31,24 @@ export class ProcessRunner extends BaseRunner {
       type,
       payload
     })
+  }
+
+  _forkProcess() {
+    this.process = fork(
+      this._getNuxtWorkerBin(),
+      [
+        this.workerName,
+        this.rootDir,
+        JSON.stringify(this.options)
+      ], {
+        stdout: process.stdout,
+        stderr: process.stderr
+      }
+    )
+  }
+
+  _getNuxtWorkerBin() {
+    require.resolve('@nuxt/worker/bin/nuxt-worker')
   }
 
   _listenOnMessage() {
