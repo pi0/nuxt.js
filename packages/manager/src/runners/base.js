@@ -18,13 +18,9 @@ export class BaseRunner extends EventEmitter {
     this.services = []
   }
 
-  _onUpdate() {
-    this.emit('update')
-  }
-
   set status(_statusCode) {
     this._statusCode = WORKER_STATUS[_statusCode] || _statusCode
-    this._onUpdate()
+    this.emit('update')
   }
 
   get status() {
@@ -33,7 +29,7 @@ export class BaseRunner extends EventEmitter {
 
   _registerService(service) {
     this.services.push(service)
-    this._onUpdate()
+    this.emit('update')
   }
 
   // -- Abstracts --

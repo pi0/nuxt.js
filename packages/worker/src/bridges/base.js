@@ -1,28 +1,6 @@
 import EventEmitter from 'events'
 
-export class WorkerBridge extends EventEmitter {
-  constructor() {
-    super()
-
-    this._send = process.send.bind(process)
-    if (!this._send) {
-      throw new Error('`process.send` is unavailable! is this process running as a child?')
-    }
-
-    process.on('message', (message) => {
-      if (message && message.type) {
-        this.emit(message.type, message.payload)
-      }
-    })
-  }
-
-  send(type, payload) {
-    this._send({
-      type,
-      payload
-    })
-  }
-
+export class BaseBridge extends EventEmitter {
   onError(error) {
     try {
       this.send('_error', { message: error + '' })
@@ -31,9 +9,8 @@ export class WorkerBridge extends EventEmitter {
     }
   }
 
-  exit(code = 0) {
-    this.send('_exit', code)
-    process.exit(code)
+  close(code = 0) {
+    this.send('_close', code)
   }
 
   subscribe(type, cb) {

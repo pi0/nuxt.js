@@ -26,6 +26,6 @@ export default async function builder(opts, bridge) {
 
   // Only exit after production build
   if (!opts.dev) {
-    bridge.exit()
+    bridge.close(0)
   }
 }

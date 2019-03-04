@@ -3,7 +3,7 @@ import { parseOptions } from './utils/options'
 import { isDirectorySync } from './utils/fs'
 
 import * as workers from './workers'
-import { WorkerBridge } from './bridge'
+import { ClusterBridge } from './bridges/cluster'
 
 export async function startWorker(options) {
   if (!options || Array.isArray(options)) {
@@ -30,15 +30,15 @@ export async function startWorker(options) {
   const nuxtConfig = parseOptions('nuxt.config')
   const workerOptions = defu(options, nuxtConfig)
 
-  // Create a bridge
-  const bridge = new WorkerBridge()
+  // Create a cluster bridge
+  const bridge = new ClusterBridge()
 
   // Invoke worker
   try {
     await worker(workerOptions, bridge)
   } catch (error) {
     bridge.onError(error)
-    bridge.exit(1)
+    bridge.close(1)
   }
 }
 

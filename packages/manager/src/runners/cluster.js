@@ -45,7 +45,7 @@ export class ClusterRunner extends BaseRunner {
 
   _listenOnMessage() {
     this.worker.on('message', (msg) => {
-      if (msg && typeof msg === 'object' && msg.type) {
+      if (msg && msg.type) {
         this.emit('message', msg.type, msg.payload)
       }
     })
@@ -54,10 +54,10 @@ export class ClusterRunner extends BaseRunner {
   _listenOnExit() {
     this.worker.on('exit', (code, signal) => {
       // Update status
-      this.status = WORKER_STATUS.EXITED
+      this.status = WORKER_STATUS.CLOSED
 
-      // Emit exit event
-      this.emit('exit', code, signal)
+      // Emit close event
+      this.emit('close', code, signal)
     })
   }
 }
