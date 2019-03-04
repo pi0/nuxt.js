@@ -7,7 +7,8 @@ export default async function server(opts, bridge) {
     for (const serviceName in services) {
       const service0 = services[serviceName][0]
       nuxt.callHook('server:registerProxy', '/_services/' + serviceName, {
-        target: service0.url
+        target: service0.url,
+        ws: service0.ws
       })
     }
   })

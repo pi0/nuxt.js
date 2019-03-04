@@ -67,7 +67,7 @@ export default class Proxy {
 
   _handleUpgrade(req, sock, head) {
     // Try to match based on req.url
-    const matchedProxy = this._matchPrefix(req.url)
+    const matchedProxy = this._matchProxy(req.url)
 
     // Skip if no matches or no ws enabled
     if (!matchedProxy || !matchedProxy.ws) {

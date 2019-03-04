@@ -14,7 +14,8 @@
   },
   "dependencies": {
     "defu": "^0.0.1",
-    "esm": "^3.2.9"
+    "esm": "^3.2.9",
+    "ws": "^6.1.4"
   },
   "publishConfig": {
     "access": "public"
