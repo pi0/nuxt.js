@@ -14,15 +14,26 @@ export class BaseRunner extends EventEmitter {
     this.options = options
 
     this._statusCode = WORKER_STATUS.CREATED
+
+    this.services = []
+  }
+
+  _onUpdate() {
+    this.emit('update')
   }
 
   set status(_statusCode) {
     this._statusCode = WORKER_STATUS[_statusCode] || _statusCode
-    this.emit('update', 'status', this._statusCode)
+    this._onUpdate()
   }
 
   get status() {
     return WORKER_STATUS_STR[this._statusCode]
+  }
+
+  _addService(service) {
+    this.services.push(service)
+    this._onUpdate()
   }
 
   // -- Abstracts --

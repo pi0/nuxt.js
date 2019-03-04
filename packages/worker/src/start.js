@@ -34,10 +34,12 @@ export async function startWorker(options) {
   const bridge = new WorkerBridge()
 
   // Invoke worker
-  await worker(workerOptions, bridge).catch((error) => {
+  try {
+    await worker(workerOptions, bridge)
+  } catch (error) {
     bridge.onError(error)
     bridge.exit(1)
-  })
+  }
 }
 
 function parseArgv(_argv) {

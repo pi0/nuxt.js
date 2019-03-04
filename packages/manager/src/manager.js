@@ -1,4 +1,6 @@
 import Table from 'cli-table'
+import debounce from 'debounce'
+import consola from 'consola'
 import { ClusterRunner } from './runners/cluster'
 
 export class Manager {
@@ -7,16 +9,22 @@ export class Manager {
     this._subscribers = {} // type => [runners]
 
     this._messageHandlers = {
-      _subscribe: this._handleSubscribe.bind(this)
+      _error: this._handleError.bind(this),
+      _subscribe: this._handleSubscribe.bind(this),
+      _addService: this._handleAddService.bind(this),
+      _getServices: this._handleGetServices.bind(this)
     }
+
+    this.showStatus = debounce(this._showStatus.bind(this), 1000)
   }
 
-  showStatus() {
-    const table = new Table({
-      head: ['Name', 'ID', 'Status']
-    })
+  _showStatus() {
+    const table = new Table({ head: ['Name', 'ID', 'Status', 'Services'] })
     for (const runner of this._runners) {
-      table.push([runner.workerName, runner.id, runner.status])
+      const servicesStr = runner.services
+        .map(service => `${service.name} (${service.address.port})`).join(', ')
+
+      table.push([runner.workerName, runner.id, runner.status, servicesStr])
     }
     console.log(table.toString()) // eslint-disable-line no-console
   }
@@ -40,13 +48,12 @@ export class Manager {
   }
 
   _handleMessage(runner, type, payload) {
-    // Check for internal message
+    // Check for internal handlers
     if (type[0] === '_') {
       const handlerFn = this._messageHandlers[type]
       if (handlerFn) {
         handlerFn(runner, payload)
       }
-      return
     }
 
     // Send message to subscribers
@@ -56,11 +63,39 @@ export class Manager {
     }
   }
 
+  _handleError(runner, payload) {
+    consola.error(`Error from ${runner.workerName} worker:`, payload.message)
+  }
+
   _handleSubscribe(runner, payload) {
     if (!this._subscribers[payload]) {
       this._subscribers[payload] = []
     }
     this._subscribers[payload].push(runner)
+  }
+
+  _handleAddService(runner, payload) {
+    runner._addService(payload)
+  }
+
+  _handleGetServices(runner) {
+    // Group services by name
+    const services = {}
+
+    for (const _runner of this._runners) {
+      if (_runner === runner) {
+        continue
+      }
+      for (const service of _runner.services) {
+        if (!services[service.name]) {
+          services[service.name] = []
+        }
+        services[service.name].push(service.address)
+      }
+    }
+
+    // Send result back to the runner
+    runner.send('_services', services)
   }
 }
 

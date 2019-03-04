@@ -37,7 +37,10 @@ export class ClusterRunner extends BaseRunner {
     if (!this.worker) {
       return
     }
-    this.worker.send(type, payload)
+    this.worker.send({
+      type,
+      payload
+    })
   }
 
   _listenOnMessage() {
