@@ -19,6 +19,10 @@ export default class Nuxt extends Hookable {
     // Assign options and apply defaults
     this.options = getNuxtConfig(_options)
 
+    // Create instance of core components
+    this.resolver = new Resolver(this)
+    this.moduleContainer = new ModuleContainer(this)
+
     // Deprecated hooks
     this._deprecatedHooks = {
       'render:context': 'render:routeContext',
@@ -26,38 +30,37 @@ export default class Nuxt extends Hookable {
       'showReady': 'webpack:done' // Workaround to deprecate showReady
     }
 
-    // Create resolver
-    this.resolver = new Resolver(this)
+    // Add Legacy aliases
     defineAlias(this, this.resolver, ['resolveAlias', 'resolvePath'])
-
-    // Create moduleContainer
-    this.moduleContainer = new ModuleContainer(this)
-
-    // Create server
-    if (this.options.server) {
-      this.server = new Server(this)
-      defineAlias(this, this.server, ['renderRoute', 'renderAndGetWindow', 'listen'])
-      this.renderer = this.server
-      this.render = this.server.app
-    }
-
-    // Legacy aliases
     this.showReady = () => { this.callHook('webpack:done') }
 
-    // Wait for Nuxt to be ready
-    this.initialized = false
-    this._ready = this.ready().catch((err) => {
-      consola.fatal(err)
-    })
+    // Call ready only if _autoInit not set to false
+    if (this.options._autoInit !== false) {
+      this.ready()
+    }
   }
 
   static get version() {
     return (global.__NUXT && global.__NUXT.version) || `v${version}`
   }
 
-  async ready() {
-    if (this._ready) {
-      return this._ready
+  ready() {
+    if (!this._ready) {
+      this._ready = this.init().catch((err) => {
+        consola.fatal(err)
+      })
+    }
+    return this._ready
+  }
+
+  async init() {
+    if (this.initialized) {
+      return this
+    }
+
+    // Init server
+    if (this.options._autoCreateServer !== false) {
+      this.createServer()
     }
 
     // Add hooks
@@ -81,6 +84,13 @@ export default class Nuxt extends Hookable {
     await this.callHook('ready', this)
 
     return this
+  }
+
+  createServer() {
+    this.server = new Server(this)
+    this.renderer = this.server
+    this.render = this.server.app
+    defineAlias(this, this.server, ['renderRoute', 'renderAndGetWindow', 'listen'])
   }
 
   async close(callback) {
