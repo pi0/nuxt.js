@@ -4,7 +4,12 @@ export default async function server(opts, bridge) {
   const nuxt = await getNuxt(opts)
 
   bridge.monitorServices((services) => {
-    console.log('Services: ', services)
+    for (const serviceName in services) {
+      const address0 = services[serviceName][0]
+      nuxt.callHook('server:registerProxy', '/_services/' + serviceName, {
+        target: 'http://localhost:' + address0.port
+      })
+    }
   })
 
   await nuxt.server.listen()
