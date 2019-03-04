@@ -60,12 +60,15 @@ export class ProcessRunner extends BaseRunner {
   }
 
   _listenOnExit() {
-    this.process.on('exit', (code, signal) => {
+    this.process.on('exit', (code) => {
+      // Unref
+      delete this.process
+
       // Update status
       this.status = WORKER_STATUS.CLOSED
 
       // Emit close event
-      this.emit('close', code, signal)
+      this.emit('close', code)
     })
   }
 }

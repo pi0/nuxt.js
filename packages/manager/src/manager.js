@@ -26,7 +26,7 @@ export class Manager {
 
       table.push([runner.workerName, runner.id, runner.status, servicesStr])
     }
-    console.log(table.toString()) // eslint-disable-line no-console
+    process.stderr.write('\n' + table.toString() + '\n')
   }
 
   async forkProcess(workerName, rootDir, options) {
@@ -42,9 +42,18 @@ export class Manager {
       this.showStatus()
     })
 
+    runner.on('close', () => {
+      this._unregisterRunner(runner)
+    })
+
     runner.on('message', (type, payload) => {
       this._handleMessage(runner, type, payload)
     })
+  }
+
+  _unregisterRunner(runner) {
+    this._runners = this._runners.filter(r => r !== runner)
+    this.showStatus()
   }
 
   _handleMessage(runner, type, payload) {
