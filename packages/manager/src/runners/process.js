@@ -13,7 +13,7 @@ export class ProcessRunner extends BaseRunner {
 
   start() {
     // Fork process
-    this._fork()
+    this._forkProcess()
 
     // Setup listeners
     this._listenOnExit()
@@ -24,10 +24,10 @@ export class ProcessRunner extends BaseRunner {
   }
 
   send(type, payload) {
-    if (!this.worker) {
+    if (!this.process) {
       return
     }
-    this.worker.send({
+    this.process.send({
       type,
       payload
     })
@@ -48,7 +48,7 @@ export class ProcessRunner extends BaseRunner {
   }
 
   _getNuxtWorkerBin() {
-    require.resolve('@nuxt/worker/bin/nuxt-worker')
+    return require.resolve('@nuxt/worker/bin/nuxt-worker')
   }
 
   _listenOnMessage() {
