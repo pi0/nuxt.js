@@ -11,7 +11,7 @@ export class Manager {
     this._messageHandlers = {
       _error: this._handleError.bind(this),
       _subscribe: this._handleSubscribe.bind(this),
-      _addService: this._handleAddService.bind(this),
+      _registerService: this._handleRegisterService.bind(this),
       _getServices: this._handleGetServices.bind(this)
     }
 
@@ -22,7 +22,7 @@ export class Manager {
     const table = new Table({ head: ['Name', 'ID', 'Status', 'Services'] })
     for (const runner of this._runners) {
       const servicesStr = runner.services
-        .map(service => `${service.name} (${service.address.port})`).join(', ')
+        .map(service => `${service.name} (${service.url})`).join(', ')
 
       table.push([runner.workerName, runner.id, runner.status, servicesStr])
     }
@@ -76,8 +76,8 @@ export class Manager {
     }
   }
 
-  _handleAddService(runner, payload) {
-    runner._addService(payload)
+  _handleRegisterService(runner, payload) {
+    runner._registerService(payload)
   }
 
   _handleGetServices(runner) {
@@ -92,7 +92,7 @@ export class Manager {
         if (!services[service.name]) {
           services[service.name] = []
         }
-        services[service.name].push(service.address)
+        services[service.name].push(service)
       }
     }
 

@@ -1,4 +1,3 @@
-import { Server } from 'http'
 import EventEmitter from 'events'
 
 export class WorkerBridge extends EventEmitter {
@@ -47,28 +46,21 @@ export class WorkerBridge extends EventEmitter {
     }
   }
 
-  async startService(name, requestListener) {
-    // Create new server
-    const server = new Server(requestListener)
-
-    // Listen on a random port
-    await new Promise((resolve, reject) => {
-      server.listen(0, error => error ? reject(error) : resolve())
+  registerService(name, { address, ...opts }) {
+    this.send('_registerService', {
+      name,
+      address,
+      url: `http://localhost:${address.port}`,
+      ...opts
     })
-
-    // Get port
-    const address = server.address()
-
-    // Announce service
-    this.send('_addService', { name, address })
   }
 
   monitorServices(cb) {
     // Listen for _services message
     this.on('_services', services => cb(services))
 
-    // Subscribe for _addService event
-    this.subscribe('_addService', () => {
+    // Subscribe for _registerService event
+    this.subscribe('_registerService', () => {
       this.send('_getServices')
     })
 

@@ -5,9 +5,9 @@ export default async function server(opts, bridge) {
 
   bridge.monitorServices((services) => {
     for (const serviceName in services) {
-      const address0 = services[serviceName][0]
+      const service0 = services[serviceName][0]
       nuxt.callHook('server:registerProxy', '/_services/' + serviceName, {
-        target: 'http://localhost:' + address0.port
+        target: service0.url
       })
     }
   })

@@ -31,7 +31,7 @@ export class BaseRunner extends EventEmitter {
     return WORKER_STATUS_STR[this._statusCode]
   }
 
-  _addService(service) {
+  _registerService(service) {
     this.services.push(service)
     this._onUpdate()
   }

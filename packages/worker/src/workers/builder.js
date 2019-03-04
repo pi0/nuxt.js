@@ -1,12 +1,15 @@
 import { getNuxt, getBuilder } from '../utils/nuxt'
+import { createHTTPService } from '../utils/service'
 
 export default async function builder(opts, bridge) {
   const nuxt = await getNuxt({ ...opts, server: false })
   const builder = getBuilder(nuxt)
 
-  await bridge.startService('builder', (req, res) => {
+  const test = await createHTTPService((req, res) => {
     res.end('Works!')
   })
+
+  await bridge.registerService('builder', test)
 
   await builder.build()
 

@@ -25,8 +25,10 @@ export default class Proxy {
   _handleProxyError(error, req, res, options) {
     const errorMsg = 'Proxy error: ' + error.toString()
     consola.error(errorMsg)
-    res.statusCode = 500
-    res.end(errorMsg)
+    if (res) {
+      res.statusCode = 500
+      res.end(errorMsg)
+    }
   }
 
   _matchProxy(url) {
