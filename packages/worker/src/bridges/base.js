@@ -27,7 +27,7 @@ export class BaseBridge extends EventEmitter {
     this.send('_registerService', {
       name,
       address,
-      url: `http://localhost:${address.port}`,
+      url: `${opts.ws ? 'ws' : 'http'}://localhost:${address.port}`,
       ...opts
     })
   }
