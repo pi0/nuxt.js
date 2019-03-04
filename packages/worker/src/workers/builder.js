@@ -1,5 +1,5 @@
 import { getNuxt, getBuilder } from '../utils/nuxt'
-import { createHTTPService, createWSService } from '../utils/service'
+import { createWSService } from '../utils/service'
 
 export default async function builder(opts, bridge) {
   // Create nuxt and builder instance

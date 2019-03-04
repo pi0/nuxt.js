@@ -1,4 +1,4 @@
-import cluster from 'cluster'
+import { fork } from 'child_process'
 import { WORKER_STATUS } from '../consts'
 import { BaseRunner } from './base'
 
@@ -8,22 +8,21 @@ export class ProcessRunner extends BaseRunner {
   }
 
   get id() {
-    return this.worker ? this.worker.process.pid : -1
+    return this.process ? this.process.pid : -1
   }
 
   start() {
-    // Setup master setting for entrypoint
-    cluster.setupMaster({
-      exec: require.resolve('@nuxt/worker/bin/nuxt-worker'),
-      args: [
+    // Fork a worker
+    this.process = fork(
+      require.resolve('@nuxt/worker/bin/nuxt-worker'),
+      [
         this.workerName,
         this.rootDir,
         JSON.stringify(this.options)
-      ]
-    })
-
-    // Fork worker
-    this.worker = cluster.fork()
+      ], {
+        stdout: process.stdout,
+        stderr: process.stderr
+      })
 
     // Setup listeners
     this._listenOnExit()
@@ -44,7 +43,7 @@ export class ProcessRunner extends BaseRunner {
   }
 
   _listenOnMessage() {
-    this.worker.on('message', (msg) => {
+    this.process.on('message', (msg) => {
       if (msg && msg.type) {
         this.emit('message', msg.type, msg.payload)
       }
@@ -52,7 +51,7 @@ export class ProcessRunner extends BaseRunner {
   }
 
   _listenOnExit() {
-    this.worker.on('exit', (code, signal) => {
+    this.process.on('exit', (code, signal) => {
       // Update status
       this.status = WORKER_STATUS.CLOSED
 
