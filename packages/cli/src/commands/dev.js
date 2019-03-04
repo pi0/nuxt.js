@@ -79,9 +79,9 @@ export default {
 
   async startDevWorker() {
     // Start server worker
-    await this.cmd.forkWorker('server', { dev: true })
+    await this.cmd.forkProcess('server', { dev: true })
 
     // Start builder worker
-    await this.cmd.forkWorker('builder', { dev: true })
+    await this.cmd.forkProcess('builder', { dev: true })
   }
 }

@@ -1,6 +1,6 @@
 import { BaseBridge } from './base'
 
-export class ClusterBridge extends BaseBridge {
+export class ProcessBridge extends BaseBridge {
   constructor() {
     super()
 

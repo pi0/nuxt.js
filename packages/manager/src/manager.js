@@ -1,7 +1,7 @@
 import Table from 'cli-table'
 import debounce from 'debounce'
 import consola from 'consola'
-import { ClusterRunner } from './runners/cluster'
+import { ProcessRunner } from './runners/process'
 
 export class Manager {
   constructor() {
@@ -29,8 +29,8 @@ export class Manager {
     console.log(table.toString()) // eslint-disable-line no-console
   }
 
-  async forkWorker(workerName, rootDir, options) {
-    const runner = new ClusterRunner(workerName, rootDir, options)
+  async forkProcess(workerName, rootDir, options) {
+    const runner = new ProcessRunner(workerName, rootDir, options)
     this._registerRunner(runner)
     await runner.start()
   }

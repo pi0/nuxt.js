@@ -1,2 +1,2 @@
 export { BaseBridge } from './base'
-export { ClusterBridge } from './cluster'
+export { ProcessBridge } from './process'

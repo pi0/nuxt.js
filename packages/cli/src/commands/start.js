@@ -30,6 +30,6 @@ export default {
 
   async startWorker() {
     // Start server worker
-    await this.cmd.forkWorker('server', { dev: false })
+    await this.cmd.forkProcess('server', { dev: false })
   }
 }

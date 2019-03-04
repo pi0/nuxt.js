@@ -2,7 +2,7 @@ import cluster from 'cluster'
 import { WORKER_STATUS } from '../consts'
 import { BaseRunner } from './base'
 
-export class ClusterRunner extends BaseRunner {
+export class ProcessRunner extends BaseRunner {
   constructor(workerName, rootDir = '.', options = {}) {
     super(workerName, rootDir, options)
   }

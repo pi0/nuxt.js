@@ -85,7 +85,7 @@ export default class NuxtCommand {
     return options
   }
 
-  forkWorker(name, _options) {
+  forkProcess(name, _options) {
     const rootDir = this.argv._[0] || '.'
 
     const options = {
@@ -100,7 +100,7 @@ export default class NuxtCommand {
 
     this.argv['force-exit'] = false
 
-    return manager.forkWorker(name, rootDir, options)
+    return manager.forkProcess(name, rootDir, options)
   }
 
   async getNuxt(options) {
