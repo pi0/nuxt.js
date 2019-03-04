@@ -71,7 +71,9 @@ export class Manager {
     if (!this._subscribers[payload]) {
       this._subscribers[payload] = []
     }
-    this._subscribers[payload].push(runner)
+    if (!this._subscribers[payload].includes(runner)) {
+      this._subscribers[payload].push(runner)
+    }
   }
 
   _handleAddService(runner, payload) {
