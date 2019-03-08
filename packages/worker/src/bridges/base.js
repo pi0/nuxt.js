@@ -2,11 +2,17 @@ import EventEmitter from 'events'
 
 export class BaseBridge extends EventEmitter {
   onError(error) {
+    this._logError(error)
     try {
       this.send('_error', { message: error + '' })
-    } catch (e) {
-      console.error(e) // eslint-disable-line no-console
+    } catch (error) {
+      this._logError(error)
     }
+  }
+
+  _logError(error) {
+    // eslint-disable-next-line no-console
+    console.error(error)
   }
 
   close(code = 0) {
@@ -23,7 +29,12 @@ export class BaseBridge extends EventEmitter {
     }
   }
 
-  registerService(name, { address, ...opts }) {
+  async registerService(name, arg1) {
+    if (typeof arg1.then === 'function') {
+      arg1 = await arg1
+    }
+    const { address, ...opts } = arg1
+
     this.send('_registerService', {
       name,
       address,

@@ -1,13 +1,19 @@
-import http from 'http'
+import connect from 'connect'
 import ws from 'ws'
 
-export async function createHTTPService(requestListener) {
+export async function createHTTPService(routes = {}) {
   // Create new server
-  const server = new http.Server(requestListener)
+  const app = connect()
+
+  // Register routes
+  const sortedPaths = Object.keys(routes).sort((a, b) => b.length - a.length)
+  for (const path of sortedPaths) {
+    app.use(path, routes[path])
+  }
 
   // Listen on a random port
-  await new Promise((resolve, reject) => {
-    server.listen(0, error => error ? reject(error) : resolve())
+  const server = await new Promise((resolve, reject) => {
+    const server = app.listen(0, error => error ? reject(error) : resolve(server))
   })
 
   // Get port

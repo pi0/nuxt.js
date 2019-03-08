@@ -1,25 +1,15 @@
 import { getNuxt, getBuilder } from '../utils/nuxt'
-import { createWSService } from '../utils/service'
+import { createHTTPService } from '../utils/service'
 
 export default async function builder(opts, bridge) {
   // Create nuxt and builder instance
   const nuxt = await getNuxt({ ...opts, server: false })
   const builder = getBuilder(nuxt)
 
-  // Testing httpService
-  // const httpService = await createHTTPService((req, res) => {
-  //   res.end('HTTP Works!')
-  // })
-  // await bridge.registerService('builder', httpService)
-
-  // Testing wsService
-  const wsService = await createWSService((ws, req) => {
-    ws.on('message', (message) => {
-      ws.send(message)
-    })
-    ws.send('WS Works!')
-  })
-  await bridge.registerService('builder', wsService)
+  // Builder service
+  await bridge.registerService('builder', createHTTPService({
+    '/mfs': serveMFS(builder.bundleBuilder.mfs)
+  }))
 
   // Start build
   await builder.build()
@@ -27,5 +17,38 @@ export default async function builder(opts, bridge) {
   // Only exit after production build
   if (!opts.dev) {
     bridge.close(0)
+  }
+}
+
+function serveMFS(mfs) {
+  return (req, res) => {
+    // Resource path is url relative to /mfs
+    const resourcePath = req.url
+
+    // Stat path
+    let stat
+    try {
+      stat = mfs.statSync(resourcePath)
+    } catch (e) {
+      res.statusCode = 404
+      return res.end('No such a file or directory: ' + resourcePath)
+    }
+
+    // Directory listing
+    if (stat.isDirectory()) {
+      return res.end(`
+        <html>
+          <body>
+          <h1>Index of ${resourcePath}</h1>
+          <ul>
+            ${mfs.readdirSync(resourcePath).map(link => `<li><a href="${link}/">${link}</a></li>`).join('\n')}
+          </ul>
+          </body>
+        </html>
+      `)
+    }
+
+    // Serve file
+    res.end(mfs.readFileSync(resourcePath))
   }
 }
