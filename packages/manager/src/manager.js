@@ -19,18 +19,18 @@ export class Manager {
   }
 
   _showStatus() {
-    const table = new Table({ head: ['Name', 'ID', 'Status', 'Services'] })
+    const table = new Table({ head: ['Entrypoint', 'ID', 'Status', 'Services'] })
     for (const runner of this._runners) {
       const servicesStr = runner.services
         .map(service => `${service.name} (${service.url})`).join(', ')
 
-      table.push([runner.workerName, runner.id, runner.status, servicesStr])
+      table.push([runner.entrypoint, runner.id, runner.status, servicesStr])
     }
     process.stderr.write('\n' + table.toString() + '\n')
   }
 
-  async forkProcess(workerName, rootDir, options) {
-    const runner = new ProcessRunner(workerName, rootDir, options)
+  async forkProcess(entrypoint, rootDir, options) {
+    const runner = new ProcessRunner(entrypoint, rootDir, options)
     this._registerRunner(runner)
     await runner.start()
   }
@@ -73,7 +73,7 @@ export class Manager {
   }
 
   _handleError(runner, payload) {
-    consola.error(`Error from ${runner.workerName} worker:`, payload.message)
+    consola.error(`Error from ${runner.entrypoint}:`, payload.message)
   }
 
   _handleSubscribe(runner, payload) {

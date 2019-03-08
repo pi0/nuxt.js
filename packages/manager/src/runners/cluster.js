@@ -5,9 +5,8 @@ export class ClusterRunner extends ProcessRunner {
   _forkProcess() {
     // Setup master setting for entrypoint
     cluster.setupMaster({
-      exec: this._getNuxtWorkerBin(),
+      exec: this._getWorkerBin(),
       args: [
-        this.workerName,
         this.rootDir,
         JSON.stringify(this.options)
       ]

@@ -1,24 +1,27 @@
-import { getNuxt, getBuilder } from '../utils/nuxt'
-import { createHTTPService } from '../utils/service'
+const { startWorker, getNuxt, getBuilder, createHTTPService } = require('@nuxt/worker')
 
-export default async function builder(opts, bridge) {
-  // Create nuxt and builder instance
-  const nuxt = await getNuxt({ ...opts, server: false })
-  const builder = getBuilder(nuxt)
+startWorker({
+  name: 'builder',
 
-  // Builder service
-  await bridge.registerService('builder', createHTTPService({
-    '/mfs': serveMFS(builder.bundleBuilder.mfs)
-  }))
+  async run(opts, bridge) {
+    // Create nuxt and builder instance
+    const nuxt = await getNuxt({ ...opts, server: false })
+    const builder = getBuilder(nuxt)
 
-  // Start build
-  await builder.build()
+    // Builder service
+    await bridge.registerService('builder', createHTTPService({
+      '/mfs': serveMFS(builder.bundleBuilder.mfs)
+    }))
 
-  // Only exit after production build
-  if (!opts.dev) {
-    bridge.close(0)
+    // Start build
+    await builder.build()
+
+    // Only exit after production build
+    if (!opts.dev) {
+      bridge.close(0)
+    }
   }
-}
+})
 
 function serveMFS(mfs) {
   return (req, res) => {

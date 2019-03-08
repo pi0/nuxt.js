@@ -1,6 +1,6 @@
 {
   "name": "@nuxt/manager",
-  "version": "0.0.0",
+  "version": "2.4.5",
   "repository": "nuxt/nuxt.js",
   "license": "MIT",
   "files": [
@@ -8,11 +8,7 @@
     "dist"
   ],
   "main": "dist/manager.js",
-  "bin": {
-    "nuxt-cluster": "bin/nuxt-cluster.js"
-  },
   "dependencies": {
-    "@nuxt/worker": "0.0.0",
     "cli-table": "^0.3.1",
     "consola": "^2.5.6",
     "debounce": "^1.2.0",

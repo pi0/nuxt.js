@@ -3,8 +3,8 @@ import { WORKER_STATUS } from '../consts'
 import { BaseRunner } from './base'
 
 export class ProcessRunner extends BaseRunner {
-  constructor(workerName, rootDir = '.', options = {}) {
-    super(workerName, rootDir, options)
+  constructor(entrypoint, rootDir = '.', options = {}) {
+    super(entrypoint, rootDir, options)
   }
 
   get id() {
@@ -35,9 +35,8 @@ export class ProcessRunner extends BaseRunner {
 
   _forkProcess() {
     this.process = fork(
-      this._getNuxtWorkerBin(),
+      this._getWorkerBin(),
       [
-        this.workerName,
         this.rootDir,
         JSON.stringify(this.options)
       ], {
@@ -47,8 +46,8 @@ export class ProcessRunner extends BaseRunner {
     )
   }
 
-  _getNuxtWorkerBin() {
-    return require.resolve('@nuxt/worker/bin/nuxt-worker')
+  _getWorkerBin() {
+    return require.resolve(this.entrypoint)
   }
 
   _listenOnMessage() {

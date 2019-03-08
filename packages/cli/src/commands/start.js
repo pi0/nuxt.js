@@ -30,6 +30,6 @@ export default {
 
   async startWorker() {
     // Start server worker
-    await this.cmd.forkProcess('server', { dev: false })
+    await this.cmd.forkProcess('@nuxt/server' + '/bin/worker', { dev: false })
   }
 }

@@ -89,7 +89,7 @@ export default {
   // ------------------------------------
   async buildWorker() {
     // Start builder worker
-    await this.cmd.forkProcess('builder', { dev: false })
+    await this.cmd.forkProcess('@nuxt/builder' + '/bin/worker', { dev: false })
   }
 
 }

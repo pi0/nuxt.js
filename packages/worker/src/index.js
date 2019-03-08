@@ -1,1 +1,2 @@
-export { startWorker } from './start'
+export * from './utils'
+export * from './start'

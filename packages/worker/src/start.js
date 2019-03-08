@@ -1,52 +1,44 @@
-import defu from 'defu'
 import { parseOptions } from './utils/options'
 import { isDirectorySync } from './utils/fs'
-
-import * as workers from './workers'
 import { ProcessBridge } from './bridges'
 
-export async function startWorker(options) {
-  if (!options || Array.isArray(options)) {
-    options = parseArgv(options)
-  }
+export async function _startWorker(worker, options) {
+  // Extract args
+  const [rootDir = '.', optsArg = '{}', nuxtOptsArg = 'nuxt.config'] = process.argv.slice(2)
 
-  // Try to get worker
-  // eslint-disable-next-line import/namespace
-  const worker = workers[options.workerName]
-  if (!worker) {
-    throw String('Unknown worker: ' + options.workerName)
+  // Parse and merge options
+  options = {
+    ...parseOptions(nuxtOptsArg),
+    ...parseOptions(optsArg),
+    rootDir
   }
 
   // Validate rootDir to be a directory
   if (!isDirectorySync(options.rootDir)) {
-    throw String(`Provided rootDir is not a valid directory: ${options.rootDir}`)
+    throw String('Provided rootDir is not a valid directory: ' + options.rootDir)
   }
 
   // Sync CWD with rootDir
   process.chdir(options.rootDir)
   options.rootDir = process.cwd()
 
-  // Options from {rootDir}/nuxt.config
-  const nuxtConfig = parseOptions('nuxt.config')
-  const workerOptions = defu(options, nuxtConfig)
-
   // Create a process bridge
   const bridge = new ProcessBridge()
 
   // Invoke worker
   try {
-    await worker(workerOptions, bridge)
+    await worker.run(options, bridge)
   } catch (error) {
     bridge.onError(error)
     bridge.close(1)
   }
 }
 
-function parseArgv(_argv) {
-  // Extract args
-  const argv = _argv ? Array.from(_argv) : process.argv.slice(2)
-  const [workerName, rootDir, options] = argv
-
-  // Resolve and merge all options
-  return defu({ rootDir, workerName }, parseOptions(options))
+export async function startWorker(...args) {
+  try {
+    await _startWorker(...args)
+  } catch (error) {
+    console.error(error) // eslint-disable-line no-console
+    process.exit(2)
+  }
 }

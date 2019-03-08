@@ -1,6 +1,6 @@
 {
   "name": "@nuxt/worker",
-  "version": "0.0.0",
+  "version": "2.4.5",
   "repository": "nuxt/nuxt.js",
   "license": "MIT",
   "files": [
@@ -8,10 +8,6 @@
     "dist"
   ],
   "main": "dist/worker.js",
-  "bin": {
-    "nuxt-cluster": "bin/nuxt-cluster.js",
-    "nuxt-worker": "bin/nuxt-worker.js"
-  },
   "dependencies": {
     "connect": "^3.6.6",
     "defu": "^0.0.1",

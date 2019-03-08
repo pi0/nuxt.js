@@ -82,9 +82,9 @@ export default {
 
   async startDevWorker() {
     // Start server worker
-    await this.cmd.forkProcess('server', { dev: true })
+    await this.cmd.forkProcess('@nuxt/server' + '/bin/worker', { dev: true })
 
     // Start builder worker
-    await this.cmd.forkProcess('builder', { dev: true })
+    await this.cmd.forkProcess('@nuxt/builder' + '/bin/worker', { dev: true })
   }
 }
