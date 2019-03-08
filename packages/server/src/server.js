@@ -47,6 +47,11 @@ export default class Server {
   }
 
   async ready() {
+    if (this._readyCalled) {
+      return this
+    }
+    this._readyCalled = true
+
     await this.nuxt.callHook('render:before', this, this.options.render)
 
     // Initialize vue-renderer
@@ -64,6 +69,8 @@ export default class Server {
 
     // Call done hook
     await this.nuxt.callHook('render:done', this)
+
+    return this
   }
 
   setupProxy() {
@@ -248,6 +255,9 @@ export default class Server {
   }
 
   async listen(port, host, socket) {
+    // Ensure nuxt is ready
+    await this.nuxt.ready()
+
     // Create a new listener
     const listener = new Listener({
       port: isNaN(parseInt(port)) ? this.options.server.port : port,

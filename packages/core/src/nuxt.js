@@ -34,9 +34,9 @@ export default class Nuxt extends Hookable {
     defineAlias(this, this.resolver, ['resolveAlias', 'resolvePath'])
     this.showReady = () => { this.callHook('webpack:done') }
 
-    // Call ready only if _autoInit not set to false
-    if (this.options._autoInit !== false) {
-      this.ready()
+    // Init server
+    if (this.options.server !== false) {
+      this._initServer()
     }
   }
 
@@ -46,22 +46,18 @@ export default class Nuxt extends Hookable {
 
   ready() {
     if (!this._ready) {
-      this._ready = this.init().catch((err) => {
+      this._ready = this._init().catch((err) => {
         consola.fatal(err)
       })
     }
     return this._ready
   }
 
-  async init() {
-    if (this.initialized) {
+  async _init() {
+    if (this._initCalled) {
       return this
     }
-
-    // Init server
-    if (this.options._autoCreateServer !== false) {
-      this.createServer()
-    }
+    this._initCalled = true
 
     // Add hooks
     if (isPlainObject(this.options.hooks)) {
@@ -78,15 +74,16 @@ export default class Nuxt extends Hookable {
       await this.server.ready()
     }
 
-    this.initialized = true
-
     // Call ready hook
     await this.callHook('ready', this)
 
     return this
   }
 
-  createServer() {
+  _initServer() {
+    if (this.server) {
+      return
+    }
     this.server = new Server(this)
     this.renderer = this.server
     this.render = this.server.app
