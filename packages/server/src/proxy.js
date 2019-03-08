@@ -16,7 +16,7 @@ export default class Proxy {
     this.proxy.on('error', this._handleProxyError.bind(this))
 
     // Dynamic proxy list (prefix => opts)
-    this.proxies = {}
+    this.rules = {}
 
     // Bind middleware to self
     this.middleware = this.middleware.bind(this)
@@ -31,51 +31,70 @@ export default class Proxy {
     }
   }
 
-  _matchProxy(url) {
-    for (const prefix in this.proxies) {
+  _matchRule(url) {
+    for (const prefix in this.rules) {
       if (url.indexOf(prefix) === 0) {
-        return this.proxies[prefix]
+        return this.rules[prefix]
       }
     }
   }
 
+  _sortRules() {
+    const rules = {}
+
+    const sortedKeys = Object.keys(this.rules).sort((a, b) => b.length - a.length)
+    for (const key of sortedKeys) {
+      rules[key] = this.rules[key]
+    }
+
+    this.rules = rules
+  }
+
   register(prefix, _proxyOptions) {
     const proxyOptions = {
+      prefix,
       ...this.options.proxyDefaults,
       ..._proxyOptions
     }
 
-    this.proxies[prefix] = proxyOptions
+    this.rules[prefix] = proxyOptions
+    this._sortRules()
   }
 
   unregister(prefix) {
-    delete this.proxies[prefix]
+    delete this.rules[prefix]
   }
 
   middleware(req, res, next) {
     // Try to match based on req.url
-    const matchedProxy = this._matchProxy(req.url)
+    const matchedRule = this._matchRule(req.url)
 
     // Skip if no matches
-    if (!matchedProxy) {
+    if (!matchedRule) {
       return next()
     }
 
+    // Remove prefix
+    req.url = req.url.substr(matchedRule.prefix.length)
+
     // Proxy HTTP
-    this.proxy.web(req, res, matchedProxy)
+    this.proxy.web(req, res, matchedRule)
   }
 
   _handleUpgrade(req, sock, head) {
     // Try to match based on req.url
-    const matchedProxy = this._matchProxy(req.url)
+    const matchedRule = this._matchRule(req.url)
 
     // Skip if no matches or no ws enabled
-    if (!matchedProxy || !matchedProxy.ws) {
+    if (!matchedRule || !matchedRule.ws) {
       return
     }
 
+    // Remove prefix
+    req.url = req.url.substr(matchedRule.prefix.length)
+
     // Proxy WebSocket
-    this.proxy.ws(req, sock, head, matchedProxy)
+    this.proxy.ws(req, sock, head, matchedRule)
   }
 
   hookUpgrade(server) {
