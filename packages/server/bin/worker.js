@@ -21,7 +21,7 @@ startWorker({
       // Connect builder service
       if (opts.dev && services.builder) {
         const endpoint = services.builder[0].url + '/mfs'
-        const httpfs = new HTTPFSAClient({ endpoint: endpoint })
+        const httpfs = new HTTPFSAClient({ endpoint })
         bridge.subscribeHook(nuxt, 'build:resources', () => [httpfs])
       }
     })
