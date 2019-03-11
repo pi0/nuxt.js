@@ -55,4 +55,18 @@ export class BaseBridge extends EventEmitter {
     // Initial discovery
     this.send('_getServices')
   }
+
+  publishHook(nuxt, hookName, argEncode) {
+    nuxt.hook(hookName, (...args) => {
+      const data = argEncode ? argEncode(...args) : {}
+      this.send('hook:' + hookName, data)
+    })
+  }
+
+  subscribeHook(nuxt, hookName, argDecode) {
+    this.subscribe('hook:' + hookName, (payload) => {
+      const args = argDecode ? argDecode(payload) : []
+      nuxt.callHook(hookName, ...args)
+    })
+  }
 }

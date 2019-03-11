@@ -1,3 +1,4 @@
+const HTTPFSMiddleware = require('htfs/lib/middleware')
 const { startWorker, getNuxt, getBuilder, createHTTPService } = require('@nuxt/worker')
 
 startWorker({
@@ -8,10 +9,16 @@ startWorker({
     const nuxt = await getNuxt({ ...opts, server: false })
     const builder = getBuilder(nuxt)
 
-    // Builder service
-    await bridge.registerService('builder', createHTTPService({
-      '/mfs': serveMFS(builder.bundleBuilder.mfs)
-    }))
+    // Dev specific
+    if (opts.dev) {
+      // Builder service
+      await bridge.registerService('builder', createHTTPService({
+        '/mfs': HTTPFSMiddleware(builder.bundleBuilder.mfs)
+      }))
+
+      // Publish builder hooks
+      bridge.publishHook(nuxt, 'build:resources')
+    }
 
     // Start build
     await builder.build()
@@ -22,36 +29,3 @@ startWorker({
     }
   }
 })
-
-function serveMFS(mfs) {
-  return (req, res) => {
-    // Resource path is url relative to /mfs
-    const resourcePath = req.url
-
-    // Stat path
-    let stat
-    try {
-      stat = mfs.statSync(resourcePath)
-    } catch (e) {
-      res.statusCode = 404
-      return res.end('No such a file or directory: ' + resourcePath)
-    }
-
-    // Directory listing
-    if (stat.isDirectory()) {
-      return res.end(`
-        <html>
-          <body>
-          <h1>Index of ${resourcePath}</h1>
-          <ul>
-            ${mfs.readdirSync(resourcePath).map(link => `<li><a href="${link}/">${link}</a></li>`).join('\n')}
-          </ul>
-          </body>
-        </html>
-      `)
-    }
-
-    // Serve file
-    res.end(mfs.readFileSync(resourcePath))
-  }
-}

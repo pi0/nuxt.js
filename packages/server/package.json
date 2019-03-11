@@ -19,6 +19,7 @@
     "etag": "^1.8.1",
     "fresh": "^0.5.2",
     "fs-extra": "^7.0.1",
+    "htfs": "^0.0.0",
     "http-proxy": "^1.17.0",
     "ip": "^1.1.5",
     "launch-editor-middleware": "^2.2.1",
