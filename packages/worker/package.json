@@ -1,6 +1,6 @@
 {
   "name": "@nuxt/worker",
-  "version": "2.4.5",
+  "version": "2.5.1",
   "repository": "nuxt/nuxt.js",
   "license": "MIT",
   "files": [
@@ -11,7 +11,7 @@
   "dependencies": {
     "connect": "^3.6.6",
     "defu": "^0.0.1",
-    "esm": "^3.2.9",
+    "esm": "^3.2.22",
     "ws": "^6.1.4"
   },
   "publishConfig": {

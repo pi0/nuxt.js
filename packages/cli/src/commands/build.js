@@ -1,3 +1,4 @@
+import { run } from 'tslint/lib/runner'
 import { common, locking } from '../options'
 import { createLock } from '../utils'
 
@@ -60,19 +61,27 @@ export default {
       }
     }
   },
-  async run(cmd) {
-    const config = await cmd.getNuxtConfig({ dev: false, _build: true })
-    const nuxt = await cmd.getNuxt(config)
 
-    if (cmd.argv.lock) {
-      await cmd.setLock(await createLock({
+  run() {
+    if (this.cmd.argv.worker) {
+      return this.buildWorker()
+    }
+    return this.build()
+  },
+
+  async build() {
+    const config = await this.cmd.getNuxtConfig({ dev: false, _build: true })
+    const nuxt = await this.cmd.getNuxt(config)
+
+    if (this.cmd.argv.lock) {
+      await this.cmd.setLock(await createLock({
         id: 'build',
         dir: nuxt.options.buildDir,
         root: config.rootDir
       }))
     }
 
-    if (nuxt.options.mode !== 'spa' || cmd.argv.generate === false) {
+    if (nuxt.options.mode !== 'spa' || this.cmd.argv.generate === false) {
       // Build only
       const builder = await this.cmd.getBuilder(nuxt)
       await builder.build()
@@ -84,12 +93,8 @@ export default {
     await generator.generate({ build: true })
   },
 
-  // ------------------------------------
-  // Worker
-  // ------------------------------------
   async buildWorker() {
     // Start builder worker
     await this.cmd.forkProcess('@nuxt/builder' + '/bin/worker', { dev: false })
   }
-
 }

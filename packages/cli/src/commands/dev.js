@@ -18,31 +18,28 @@ export default {
     }
   },
 
-  async run(cmd) {
-    // Worker Mode
+  run() {
     if (this.cmd.argv.worker) {
-      return this.startDevWorker()
+      return this.devWorker()
     }
-
-    await this.startDev(cmd, argv, argv.open)
+    return this.dev()
   },
 
-  async startDev(cmd, argv) {
+  async dev() {
     try {
-      const nuxt = await this._startDev(cmd, argv)
-
+      const nuxt = await this._dev()
       return nuxt
     } catch (error) {
       consola.error(error)
     }
   },
 
-  async _startDev(cmd, argv) {
-    const config = await cmd.getNuxtConfig({ dev: true, _build: true })
-    const nuxt = await cmd.getNuxt(config)
+  async _dev() {
+    const config = await this.cmd.getNuxtConfig({ dev: true, _build: true })
+    const nuxt = await this.cmd.getNuxt(config)
 
     // Setup hooks
-    nuxt.hook('watch:restart', payload => this.onWatchRestart(payload, { nuxt, builder, cmd, argv }))
+    nuxt.hook('watch:restart', payload => this.onWatchRestart(payload, { nuxt, builder }))
     nuxt.hook('bundler:change', changedFileName => this.onBundlerChange(changedFileName))
 
     // Wait for nuxt to be ready
@@ -55,14 +52,14 @@ export default {
     showBanner(nuxt)
 
     // Opens the server listeners url in the default browser (only once)
-    if (argv.open) {
-      argv.open = false
+    if (this.cmd.argv.open) {
+      this.cmd.argv.open = false
       const openerPromises = nuxt.server.listeners.map(listener => opener(listener.url))
       await Promise.all(openerPromises)
     }
 
     // Create builder instance
-    const builder = await cmd.getBuilder(nuxt)
+    const builder = await this.cmd.getBuilder(nuxt)
 
     // Start Build
     await builder.build()
@@ -81,19 +78,19 @@ export default {
     })
   },
 
-  async onWatchRestart({ event, path }, { nuxt, cmd, argv }) {
+  async onWatchRestart({ event, path }, { nuxt }) {
     this.logChanged({ event, path })
 
     await nuxt.close()
 
-    await this.startDev(cmd, argv)
+    await this.dev()
   },
 
   onBundlerChange(path) {
     this.logChanged({ event: 'change', path })
   },
 
-  async startDevWorker() {
+  async devWorker() {
     // Start server worker
     await this.cmd.forkProcess('@nuxt/server' + '/bin/worker', { dev: true })
 

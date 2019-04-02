@@ -54,11 +54,9 @@ export default {
   },
 
   run() {
-    // Worker Mode
     if (this.cmd.argv.worker) {
       return this.generateWorker()
     }
-
     return this.generate()
   },
 
@@ -104,6 +102,6 @@ export default {
   },
 
   generateWorker() {
-    throw new Error('TODO')
+    throw new Error('Not Supported')
   }
 }

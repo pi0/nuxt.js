@@ -11,11 +11,9 @@ export default {
   },
 
   run() {
-    // Worker Mode
     if (this.cmd.argv.worker) {
       return this.startWorker()
     }
-
     return this.start()
   },
 

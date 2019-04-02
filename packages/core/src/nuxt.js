@@ -13,11 +13,11 @@ import Hookable from './hookable'
 import Resolver from './resolver'
 
 export default class Nuxt extends Hookable {
-  constructor(_options = {}) {
+  constructor(options = {}) {
     super()
 
     // Assign options and apply defaults
-    this.options = getNuxtConfig(_options)
+    this.options = getNuxtConfig(options)
 
     // Create instance of core components
     this.resolver = new Resolver(this)
