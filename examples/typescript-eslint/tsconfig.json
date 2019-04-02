@@ -10,13 +10,11 @@
     ],
     "esModuleInterop": true,
     "experimentalDecorators": true,
-    "jsx": "preserve",
+    "allowJs": true,
     "sourceMap": true,
     "strict": true,
-    "noImplicitAny": true,
+    "noImplicitAny": false,
     "noEmit": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
     "baseUrl": ".",
     "paths": {
       "~/*": [
@@ -25,6 +23,10 @@
       "@/*": [
         "./*"
       ]
-    }
+    },
+    "types": [
+      "@types/node",
+      "@nuxt/vue-app"
+    ]
   }
 }

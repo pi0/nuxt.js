@@ -1,6 +1,6 @@
 import path from 'path'
 import consola from 'consola'
-import { Builder, BundleBuilder, getPort, loadFixture, Nuxt, rp } from '../utils'
+import { Builder, BundleBuilder, getPort, loadFixture, Nuxt, rp, waitFor } from '../utils'
 
 let port
 const url = route => 'http://localhost:' + port + route
@@ -50,9 +50,15 @@ describe('basic dev', () => {
         }
       }
     })
+
     nuxt = new Nuxt(config)
+    await nuxt.ready()
+
     builder = new Builder(nuxt, BundleBuilder)
+
     await builder.build()
+    await waitFor(2000) // TODO: Find a better way
+
     port = await getPort()
     await nuxt.server.listen(port, 'localhost')
   })
@@ -87,18 +93,18 @@ describe('basic dev', () => {
     )
     const { cssModules, vue } = loadersOptions
     expect(cssModules.localIdentName).toBe('[hash:base64:6]')
-    expect(vueLoader.options).toEqual(vue)
+    expect(vueLoader.options).toBe(vue)
   })
 
-  test('Config: cssnano is at then end of postcss plugins', () => {
+  test('Config: preset-env and cssnano are at then end of postcss plugins', () => {
     const plugins = postcssLoader.options.plugins.map((plugin) => {
       return plugin.postcssPlugin
     })
     expect(plugins).toEqual([
       'postcss-import',
       'postcss-url',
-      'postcss-preset-env',
       'nuxt-test',
+      'postcss-preset-env',
       'cssnano'
     ])
   })
@@ -107,10 +113,9 @@ describe('basic dev', () => {
     const window = await nuxt.server.renderAndGetWindow(url('/stateless'))
     const html = window.document.body.innerHTML
     expect(html).toContain('<h1>My component!</h1>')
-  })
-
-  test('Check render:routeDone hook called', () => {
+    // Check render:routeDone hook called
     expect(nuxt.__hook_render_routeDone__).toBe('/stateless')
+    window.close()
   })
 
   // test('/_nuxt/test.hot-update.json should returns empty html', async t => {
@@ -122,7 +127,7 @@ describe('basic dev', () => {
   //   }
   // })
 
-  test.skip('/__open-in-editor (open-in-editor)', async () => {
+  test('/__open-in-editor (open-in-editor)', async () => {
     const { body } = await rp(
       url('/__open-in-editor?file=pages/index.vue'),
       { resolveWithFullResponse: true }
@@ -130,7 +135,7 @@ describe('basic dev', () => {
     expect(body).toBe('')
   })
 
-  test.skip('/__open-in-editor should return error (open-in-editor)', async () => {
+  test('/__open-in-editor should return error (open-in-editor)', async () => {
     await expect(rp(url('/__open-in-editor?file='))).rejects.toMatchObject({
       statusCode: 500,
       error: 'launch-editor-middleware: required query param "file" is missing.'
@@ -143,7 +148,7 @@ describe('basic dev', () => {
     })
   })
 
-  test.skip('/error should return json format error (Youch)', async () => {
+  test('/error should return json format error (Youch)', async () => {
     const opts = {
       headers: {
         accept: 'application/json'

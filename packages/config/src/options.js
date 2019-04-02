@@ -3,7 +3,6 @@ import fs from 'fs'
 import defaultsDeep from 'lodash/defaultsDeep'
 import defaults from 'lodash/defaults'
 import pick from 'lodash/pick'
-import isObject from 'lodash/isObject'
 import uniq from 'lodash/uniq'
 import consola from 'consola'
 import { guardDir, isNonEmptyString, isPureObject, isUrl, getMainModule } from '@nuxt/utils'
@@ -84,7 +83,7 @@ export function getNuxtConfig(_options) {
 
   // Default value for _nuxtConfigFile
   if (!options._nuxtConfigFile) {
-    options._nuxtConfigFile = path.resolve(options.rootDir, defaultNuxtConfigFile)
+    options._nuxtConfigFile = path.resolve(options.rootDir, `${defaultNuxtConfigFile}.js`)
   }
 
   // Watch for _nuxtConfigFile changes
@@ -179,16 +178,14 @@ export function getNuxtConfig(_options) {
   }
 
   // Apply default hash to CSP option
-  const { csp } = options.render
-
-  const cspDefaults = {
-    hashAlgorithm: 'sha256',
-    allowedSources: undefined,
-    policies: undefined,
-    reportOnly: options.debug
-  }
-  if (csp) {
-    options.render.csp = defaults(isObject(csp) ? csp : {}, cspDefaults)
+  if (options.render.csp) {
+    options.render.csp = defaults({}, options.render.csp, {
+      hashAlgorithm: 'sha256',
+      allowedSources: undefined,
+      policies: undefined,
+      addMeta: Boolean(options._generate),
+      reportOnly: options.debug
+    })
   }
 
   // cssSourceMap
@@ -328,6 +325,11 @@ export function getNuxtConfig(_options) {
   const { bundleRenderer } = options.render
   if (typeof bundleRenderer.runInNewContext === 'undefined') {
     bundleRenderer.runInNewContext = options.dev
+  }
+
+  // Add loading screen
+  if (options.dev) {
+    options.devModules.push('@nuxt/loading-screen')
   }
 
   return options

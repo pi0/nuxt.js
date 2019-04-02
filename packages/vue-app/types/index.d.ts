@@ -14,9 +14,18 @@ type NuxtState = Dictionary<any>
 
 export interface Context {
   app: Vue
-  isClient: boolean
-  isServer: boolean
-  isStatic: boolean
+  /**
+   * @deprecated Use process.client instead
+  */
+  isClient: boolean;
+  /**
+   * @deprecated Use process.server instead
+  */
+  isServer: boolean;
+  /**
+   * @deprecated Use process.static instead
+  */
+  isStatic: boolean;
   isDev: boolean
   isHMR: boolean
   route: Route
